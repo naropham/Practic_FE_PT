@@ -48,11 +48,18 @@ def scrape_fuoverflow_thread(thread_url, subject, exam_id):
     opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookie_jar))
     
     headers = {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-    'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7',
-    'Cookie': 'xf_session=wYMrQFjEyKrTVPF3-rZvDXMigfJBWvTD; xf_user=49965%2CrxR5vefoXyPzNafjQXDYWjLd7fMXqw4FWGStRIgc'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7'
     }
+
+    # Lấy Cookie từ biến môi trường (Bảo mật: Không hard-code credential trong source code)
+    session_cookie = os.getenv('FUOVERFLOW_SESSION_COOKIE') or os.getenv('FUOVERFLOW_COOKIE')
+    if session_cookie:
+        headers['Cookie'] = session_cookie
+    else:
+        print("[!] CẢNH BÁO: Chưa thiết lập biến môi trường FUOVERFLOW_SESSION_COOKIE.")
+        print("    Nếu bài viết yêu cầu đăng nhập, hãy chạy: set FUOVERFLOW_SESSION_COOKIE=\"<cookie-value>\"")
     
     # 1. Truy cập bài viết để lấy HTML & Lưu Session Cookie
     req = urllib.request.Request(thread_url, headers=headers)
