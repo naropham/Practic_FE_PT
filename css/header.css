@@ -64,10 +64,54 @@
   cursor: pointer;
   user-select: none;
   transition: color 0.2s ease;
+  border: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .header-logo:hover {
   color: var(--primary);
+}
+
+.header-menu-wrap {
+  position: relative;
+}
+
+.header-page-menu {
+  position: absolute;
+  top: calc(100% + 0.7rem);
+  left: 0;
+  z-index: 120;
+  display: grid;
+  min-width: 190px;
+  gap: 0.25rem;
+  padding: 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: var(--surface);
+  box-shadow: 0 12px 28px rgb(15 23 42 / 20%);
+}
+
+.header-page-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: 0;
+  border-radius: 0.65rem;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.header-page-menu button:hover,
+.header-page-menu button:focus-visible {
+  background: var(--primary-light);
+  color: var(--primary);
+  outline: none;
 }
 
 /* --- BLOCK 2: SEARCH BAR --- */
@@ -138,10 +182,6 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-}
-
-.nav-badge-container {
-  position: relative;
 }
 
 .badge {

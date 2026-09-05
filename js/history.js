@@ -132,7 +132,9 @@
 
       const totalQ = item.totalQuestions || 0;
       const correctQ = item.correctCount || 0;
-      const wrongQ = Math.max(0, totalQ - correctQ);
+      const wrongQ = (typeof item.wrongCount === 'number' && Number.isFinite(item.wrongCount))
+        ? item.wrongCount
+        : Math.max(0, totalQ - correctQ);
 
       // Ngày làm bài
       const tdDate = document.createElement('td');
@@ -177,7 +179,7 @@
       const btnView = document.createElement('button');
       btnView.type = 'button';
       btnView.className = 'btn-history-view';
-      btnView.textContent = 'Xem kết quả';
+      btnView.textContent = 'Xem chi tiết';
       btnView.addEventListener('click', () => viewHistoryResult(item));
 
       const btnRetry = document.createElement('button');
@@ -218,7 +220,9 @@
 
       const totalQ = item.totalQuestions || 0;
       const correctQ = item.correctCount || 0;
-      const wrongQ = Math.max(0, totalQ - correctQ);
+      const wrongQ = (typeof item.wrongCount === 'number' && Number.isFinite(item.wrongCount))
+        ? item.wrongCount
+        : Math.max(0, totalQ - correctQ);
 
       const header = document.createElement('div');
       header.className = 'history-mobile-header';
@@ -280,7 +284,7 @@
       const btnView = document.createElement('button');
       btnView.type = 'button';
       btnView.className = 'btn-history-view';
-      btnView.textContent = 'Xem kết quả';
+      btnView.textContent = 'Xem chi tiết';
       btnView.addEventListener('click', () => viewHistoryResult(item));
 
       const btnRetry = document.createElement('button');
@@ -362,7 +366,129 @@
    * 7. HÀNH ĐỘNG XEM KẾT QUẢ THI
    */
   function viewHistoryResult(item) {
-    alert(`📊 THÔNG TIN BÀI THI\n\n• Bộ đề: ${item.examName || item.examId}\n• Môn học: ${item.subject}\n• Ngày làm: ${item.dateFormatted || item.date}\n• Điểm số: ${item.score} / 10\n• Số câu đúng: ${item.correctCount || 0} / ${item.totalQuestions || 0}\n• Thời gian làm: ${item.timeSpentText}`);
+    const panel = document.getElementById('history-detail-panel');
+    const title = document.getElementById('history-detail-title');
+    const summary = document.getElementById('history-detail-summary');
+    const list = document.getElementById('history-detail-list');
+    if (!panel || !title || !summary || !list) return;
+
+    title.textContent = item.examName || item.examId || 'Chi tiết bài thi';
+    summary.textContent = `${item.subject || 'Khác'} | ${item.dateFormatted || item.date || 'N/A'} | ${item.score || '0.00'} điểm`;
+    list.replaceChildren();
+
+    const details = Array.isArray(item.questionDetails) ? item.questionDetails : [];
+    if (details.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'history-detail-empty';
+      empty.textContent = 'Bài thi này được lưu trước khi hệ thống hỗ trợ xem chi tiết từng câu.';
+      list.appendChild(empty);
+    } else {
+      details.forEach((detail, index) => {
+        const itemEl = document.createElement('article');
+        itemEl.className = `history-detail-item ${detail.isCorrect ? 'is-correct' : 'is-wrong'}`;
+
+        const header = document.createElement('div');
+        header.className = 'history-detail-item-header';
+
+        const questionLabel = document.createElement('strong');
+        questionLabel.textContent = detail.questionId || `Câu ${index + 1}`;
+        header.appendChild(questionLabel);
+
+        const isBlank = !detail.userAnswer;
+        const status = document.createElement('span');
+        status.className = `history-detail-status ${isBlank ? 'status-blank' : detail.isCorrect ? 'status-correct' : 'status-wrong'}`;
+        status.textContent = isBlank ? 'Bỏ trống' : detail.isCorrect ? 'Đúng' : 'Sai';
+        header.appendChild(status);
+
+        if (detail.isMarked) {
+          const marked = document.createElement('span');
+          marked.className = 'history-detail-marked';
+          marked.textContent = 'Đã đánh dấu';
+          header.appendChild(marked);
+        }
+
+        const answers = document.createElement('div');
+        answers.className = 'history-detail-answers';
+        answers.appendChild(createAnswerLine('Bạn chọn', detail.userAnswer || 'Chưa trả lời'));
+        answers.appendChild(createAnswerLine('Đáp án đúng', detail.correctAnswer || 'N/A'));
+
+        itemEl.appendChild(header);
+        if (detail.questionText) {
+          const questionText = document.createElement('p');
+          questionText.className = 'history-detail-question';
+          questionText.textContent = detail.questionText;
+          itemEl.appendChild(questionText);
+        }
+        const image = document.createElement('img');
+        image.className = 'history-detail-image history-detail-image-zoomable';
+        image.src = detail.linkMedia || `./data/images/${item.subject || 'Khac'}/${item.examId || ''}/${detail.questionId || `Q${index + 1}`}.webp`;
+        image.alt = `Ảnh câu hỏi ${detail.questionId || `câu ${index + 1}`}`;
+        image.addEventListener('click', () => openHistoryImage(image.src, image.alt));
+        image.addEventListener('error', () => {
+          image.classList.add('history-detail-image-missing');
+          image.alt = 'Không tải được ảnh câu hỏi';
+        });
+        itemEl.appendChild(image);
+        itemEl.appendChild(answers);
+        list.appendChild(itemEl);
+      });
+    }
+
+    panel.classList.remove('hidden');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function openHistoryImage(src, alt) {
+    if (!src) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'history-image-lightbox';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-label', 'Ảnh câu hỏi phóng to');
+
+    const image = document.createElement('img');
+    image.className = 'history-image-lightbox-content';
+    image.src = src;
+    image.alt = alt || 'Ảnh câu hỏi phóng to';
+
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'history-image-lightbox-close';
+    closeButton.setAttribute('aria-label', 'Đóng ảnh phóng to');
+    closeButton.textContent = 'Đóng';
+
+    const close = () => {
+      document.removeEventListener('keydown', handleKeydown);
+      overlay.remove();
+    };
+    const handleKeydown = event => {
+      if (event.key === 'Escape') close();
+    };
+
+    closeButton.addEventListener('click', close);
+    overlay.addEventListener('click', event => {
+      if (event.target === overlay) close();
+    });
+    document.addEventListener('keydown', handleKeydown);
+
+    overlay.append(image, closeButton);
+    document.body.appendChild(overlay);
+  }
+
+  function createAnswerLine(label, value) {
+    const line = document.createElement('div');
+    const labelEl = document.createElement('span');
+    labelEl.className = 'history-detail-answer-label';
+    labelEl.textContent = `${label}:`;
+    const valueEl = document.createElement('strong');
+    valueEl.textContent = value;
+    line.append(labelEl, valueEl);
+    return line;
+  }
+
+  function closeHistoryDetails() {
+    const panel = document.getElementById('history-detail-panel');
+    if (panel) panel.classList.add('hidden');
   }
 
   /**
@@ -422,6 +548,9 @@
         window.dispatchEvent(new CustomEvent('page-change', { detail: { page: 'exams' } }));
       });
     }
+
+    const detailClose = document.getElementById('history-detail-close');
+    if (detailClose) detailClose.addEventListener('click', closeHistoryDetails);
 
     // Lắng nghe sự kiện nộp bài để cập nhật trang lịch sử tự động
     window.addEventListener('exam-submitted', () => {

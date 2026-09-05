@@ -4,7 +4,7 @@
  * Tuân thủ an toàn DOM API: Dùng textContent & createElement (Không innerHTML).
  */
 
-(function () {
+(function (global) {
   'use strict';
 
   const HISTORY_STORAGE_KEY = 'luyenDe_exam_history';
@@ -74,7 +74,7 @@
     subjects.forEach(subjectCode => {
       const examsInSub = EXAM_LIST.filter(e => (e.subject || "Khác") === subjectCode);
       const examCount = examsInSub.length;
-      const questionEstimate = examCount * 50;
+      const questionEstimate = examsInSub.reduce((acc, cur) => acc + (cur.questionCount || 50), 0);
 
       // Tính điểm trung bình của môn học này trong lịch sử
       const subHistory = history.filter(h => h.subject === subjectCode);
@@ -146,18 +146,13 @@
       const practiceBtn = document.createElement('button');
       practiceBtn.type = "button";
       practiceBtn.className = "btn-practice";
-      practiceBtn.textContent = "Luyện ngay";
+      practiceBtn.textContent = "Xem bộ đề";
       practiceBtn.setAttribute('data-subject', subjectCode);
 
       practiceBtn.addEventListener('click', () => {
-        // Tự động chọn môn học này trong dropdown chính
-        const examSelect = document.getElementById('exam-select');
-        if (examSelect) {
-          const firstExamInSub = examsInSub[0];
-          if (firstExamInSub) {
-            examSelect.value = firstExamInSub.id;
-            examSelect.dispatchEvent(new Event('change'));
-          }
+        if (typeof window.showPage === 'function') window.showPage('exams');
+        if (typeof window.setSelectedSubjectForExams === 'function') {
+          window.setSelectedSubjectForExams(subjectCode);
         }
       });
 
@@ -293,54 +288,17 @@
   }
 
   /**
-   * 5. ĐĂNG KÝ HÀNH ĐỘNG NHANH (QUICK ACTIONS)
-   */
-  function bindQuickActions() {
-    const btnQuick = document.getElementById('btn-quick-exam');
-    const btnPractice = document.getElementById('btn-quick-practice');
-    const btnWrong = document.getElementById('btn-review-wrong');
-
-    if (btnQuick) {
-      btnQuick.addEventListener('click', () => {
-        if (typeof EXAM_LIST !== 'undefined' && EXAM_LIST.length > 0) {
-          const randomIndex = Math.floor(Math.random() * EXAM_LIST.length);
-          const randomExam = EXAM_LIST[randomIndex];
-          const examSelect = document.getElementById('exam-select');
-          if (examSelect) {
-            examSelect.value = randomExam.id;
-            examSelect.dispatchEvent(new Event('change'));
-          }
-        }
-      });
-    }
-
-    if (btnPractice) {
-      btnPractice.addEventListener('click', () => {
-        alert("Tính năng Luyện nhanh 10 câu ngẫu nhiên sẽ mở bộ đề ngẫu nhiên!");
-        if (btnQuick) btnQuick.click();
-      });
-    }
-
-    if (btnWrong) {
-      btnWrong.addEventListener('click', () => {
-        alert("Hiện tại bạn chưa có câu hỏi làm sai nào trong phiên làm việc!");
-      });
-    }
-  }
-
-  /**
-   * 6. KHỞI TẠO DASHBOARD DỮ LIỆU ĐỘNG
+   * 5. KHỞI TẠO DASHBOARD DỮ LIỆU ĐỘNG
    */
   function initDashboard() {
     const history = getExamHistory();
     renderStatistics(history);
     renderSubjectCards(history);
     renderRecentExams(history);
-    bindQuickActions();
   }
 
   document.addEventListener('DOMContentLoaded', initDashboard);
 
   // Lắng nghe nếu có bài thi mới được nộp để làm mới Dashboard
   window.addEventListener('exam-submitted', initDashboard);
-})();
+})(typeof window !== 'undefined' ? window : this);

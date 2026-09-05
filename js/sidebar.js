@@ -26,24 +26,12 @@
       backdrop.addEventListener('click', closeMobileSidebar);
     }
 
-    // Lắng nghe sự kiện custom từ Header để mở/đóng Sidebar trên Mobile
-    window.addEventListener('toggle-sidebar', () => {
-      document.body.classList.toggle('sidebar-open');
-    });
 
     /**
      * 2. XỬ LÝ CLICK CHỌN TRANG (NO PAGE RELOAD)
      */
     function setActivePage(targetBtn) {
       if (!targetBtn) return;
-
-      navLinks.forEach(btn => {
-        btn.classList.remove('active');
-        btn.removeAttribute('aria-current');
-      });
-
-      targetBtn.classList.add('active');
-      targetBtn.setAttribute('aria-current', 'page');
 
       const pageKey = targetBtn.getAttribute('data-page');
 
@@ -57,6 +45,21 @@
         detail: { page: pageKey }
       }));
     }
+
+    window.addEventListener('page-rendered', (event) => {
+      const pageKey = event.detail ? event.detail.page : 'home';
+      const activeBtn = navLinks.find(btn => btn.getAttribute('data-page') === pageKey);
+
+      navLinks.forEach(btn => {
+        btn.classList.remove('active');
+        btn.removeAttribute('aria-current');
+      });
+
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.setAttribute('aria-current', 'page');
+      }
+    });
 
     // Event Delegation lắng nghe click duy nhất tại thẻ ul
     navList.addEventListener('click', (e) => {

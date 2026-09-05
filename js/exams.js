@@ -4,7 +4,7 @@
  * Tuân thủ an toàn DOM API: Dùng textContent & createElement (Không innerHTML).
  */
 
-(function () {
+(function (global) {
   'use strict';
 
   const HISTORY_STORAGE_KEY = 'luyenDe_exam_history';
@@ -30,7 +30,8 @@
     }
     if (typeof examId !== 'string' || !examId.trim()) return false;
     const trimmed = examId.trim();
-    if (trimmed.includes('..') || trimmed.includes('/') || trimmed.includes('\\')) return false;
+    if (trimmed.length > 100 || trimmed.includes('..') || trimmed.includes('/') || trimmed.includes('\\')) return false;
+    if (trimmed.startsWith('PRACTICE_') || trimmed.startsWith('WRONG_')) return true;
     if (typeof EXAM_LIST === 'undefined' || !Array.isArray(EXAM_LIST)) return false;
     return EXAM_LIST.some(item => item && item.id === trimmed);
   }
@@ -86,10 +87,10 @@
 
     return {
       id: examItem.id,
-      name: examItem.name || examItem.id,
+      name: `${examItem.subject || 'Khác'} - ${examItem.name || examItem.id}`,
       subject: examItem.subject || 'Khác',
-      questionCount: 50,
-      timeLimitText: '60 phút',
+      questionCount: examItem.questionCount || 50,
+      timeLimitText: examItem.durationMinutes ? `${examItem.durationMinutes} phút` : '60 phút',
       attemptsCount: attemptsCount,
       highestScore: attemptsCount > 0 ? highestScore.toFixed(2) : '---',
       latestScore: attemptsCount > 0 ? latestScore.toFixed(2) : '---',
@@ -241,10 +242,11 @@
       return;
     }
 
-    const examSelect = document.getElementById('exam-select');
-    if (examSelect) {
-      examSelect.value = examId;
-      examSelect.dispatchEvent(new Event('change'));
+    const examItem = typeof EXAM_LIST !== 'undefined' && Array.isArray(EXAM_LIST) ? EXAM_LIST.find(x => x.id === examId) : null;
+    const subCode = examItem ? (examItem.subject || "Khác") : "Khác";
+
+    if (typeof window.loadExam === 'function') {
+      window.loadExam(examId, subCode);
     }
   }
 
@@ -379,4 +381,4 @@
       updateExamsPage();
     }
   };
-})();
+})(typeof window !== 'undefined' ? window : this);

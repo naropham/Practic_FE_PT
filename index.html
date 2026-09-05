@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Luyện Đề FE - Màn Hình Làm Bài</title>
+    <title>App Luyện Đề FE-PT</title>
 
     <!-- Content Security Policy (Progressive Hardening) -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; script-src 'self' file: 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: file:; connect-src 'self' blob: file:; font-src 'self' data: file:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';">
 
     <!-- ANTI-FLASH THEME SCRIPT (Ngăn chớp trắng giao diện trước khi nạp Dark Mode) -->
     <script src="./js/anti-flash.js"></script>
@@ -37,36 +37,21 @@
     <!-- 1. HEADER COMPONENT -->
     <header class="app-header" aria-label="Thanh điều hướng chính">
         <div class="header-left">
-            <button type="button" id="sidebar-toggle-btn" class="icon-btn" aria-label="Mở hoặc đóng menu ứng dụng" title="Mở/Đóng Sidebar">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
-            </button>
-            <a href="#" id="header-logo" class="header-logo" title="Trở về trang chủ">
+            <div class="header-menu-wrap">
+            <button type="button" id="header-logo" class="header-logo" aria-haspopup="true" aria-expanded="false" title="Mở danh sách trang">
                 <span>📝 Luyện Đề FE</span>
-            </a>
-        </div>
-
-        <div class="header-center">
-            <div class="search-box">
-                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                <input type="search" id="header-search-input" class="search-input" placeholder="Tìm kiếm bộ đề, môn học... (Bấm '/' để tìm)" aria-label="Tìm kiếm bộ đề hoặc môn học">
-                <kbd class="search-shortcut">Ctrl K</kbd>
+            </button>
+            <nav id="header-page-menu" class="header-page-menu hidden" aria-label="Danh sách trang">
+                <button type="button" data-header-page="home">🏠 <span>Trang chủ</span></button>
+                <button type="button" data-header-page="subjects">📚 <span>Môn học</span></button>
+                <button type="button" data-header-page="exams">📝 <span>Luyện đề</span></button>
+                <button type="button" data-header-page="history">🕒 <span>Lịch sử làm bài</span></button>
+                <button type="button" data-header-page="stats">📊 <span>Thống kê</span></button>
+            </nav>
             </div>
         </div>
 
         <div class="header-right">
-            <div class="nav-badge-container">
-                <button type="button" id="notification-btn" class="icon-btn" aria-label="Xem thông báo mới" title="Thông báo">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                    </svg>
-                    <span class="badge" title="Có thông báo mới"></span>
-                </button>
-            </div>
-
             <button type="button" id="theme-toggle-btn" class="icon-btn theme-toggle-btn" aria-label="Chuyển đổi giao diện Sáng / Tối" title="Đổi giao diện Sáng/Tối">
                 <svg class="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
@@ -77,7 +62,7 @@
             </button>
 
             <button type="button" id="user-avatar-btn" class="user-avatar-btn" aria-label="Tài khoản người dùng" title="Tài khoản">
-                <img src="./assets/images/default-avatar.svg" alt="Avatar" class="user-avatar-img">
+                <img src="./assets/images/avatar.jpg" alt="Avatar" class="user-avatar-img">
             </button>
         </div>
     </header>
@@ -85,6 +70,17 @@
     <!-- 2. MAIN APP CONTAINER -->
     <div class="app-container">
         <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+
+        <div id="quiz-exit-confirm" class="quiz-exit-confirm hidden" role="dialog" aria-modal="true" aria-labelledby="quiz-exit-title">
+            <div class="quiz-exit-confirm-card">
+                <h2 id="quiz-exit-title">Bạn đang làm bài</h2>
+                <p>Rời khỏi bây giờ sẽ kết thúc phiên làm bài hiện tại. Bạn có chắc muốn thoát không?</p>
+                <div class="quiz-exit-confirm-actions">
+                    <button type="button" id="quiz-exit-cancel" class="btn-history-retry">Ở lại bài</button>
+                    <button type="button" id="quiz-exit-accept" class="btn-submit-main">Thoát bài</button>
+                </div>
+            </div>
+        </div>
 
         <!-- 2.1 SIDEBAR COMPONENT -->
         <aside id="app-sidebar" class="app-sidebar" aria-label="Menu điều hướng ứng dụng">
@@ -107,30 +103,6 @@
                         </button>
                     </li>
                     <li class="nav-item" role="none">
-                        <button type="button" class="nav-link" data-page="exams" role="menuitem" aria-label="Luyện đề trắc nghiệm">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                            </svg>
-                            <span class="nav-label">Luyện đề</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="none">
-                        <button type="button" class="nav-link" data-page="flagged" role="menuitem" aria-label="Các câu hỏi đã đánh dấu">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                            </svg>
-                            <span class="nav-label">Câu đã đánh dấu</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="none">
-                        <button type="button" class="nav-link" data-page="wrong" role="menuitem" aria-label="Danh sách các câu làm sai">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span class="nav-label">Câu sai</span>
-                        </button>
-                    </li>
-                    <li class="nav-item" role="none">
                         <button type="button" class="nav-link" data-page="history" role="menuitem" aria-label="Lịch sử làm bài thi">
                             <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -146,15 +118,6 @@
                             <span class="nav-label">Thống kê</span>
                         </button>
                     </li>
-                    <li class="nav-item" role="none">
-                        <button type="button" class="nav-link" data-page="settings" role="menuitem" aria-label="Cài đặt hệ thống">
-                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            <span class="nav-label">Cài đặt</span>
-                        </button>
-                    </li>
                 </ul>
             </nav>
         </aside>
@@ -163,33 +126,21 @@
         <main class="app-main">
             <!-- 1. DASHBOARD VIEW -->
             <div id="dashboard-view" class="dashboard-container">
-                <section class="welcome-hero" aria-label="Chào mừng người dùng">
-                    <div>
-                        <h1 class="welcome-title">Xin chào, Học viên! 👋</h1>
-                        <p class="welcome-desc">Chào mừng bạn quay trở lại. Hãy chọn một môn học hoặc bộ đề bất kỳ để bắt đầu luyện tập ngay hôm nay!</p>
+                <section class="study-hero" aria-label="Không gian học tập">
+                    <div class="study-skyline" aria-hidden="true">
+                        <span class="study-cloud cloud-one"></span>
+                        <span class="study-cloud cloud-two"></span>
+                        <span class="study-tree tree-left">🌳</span>
+                        <span class="study-tree tree-right">🌳</span>
+                        <span class="study-bird bird-one">⌁</span>
+                        <span class="study-bird bird-two">⌁</span>
+                        <span class="study-bus">🚌</span>
+                        <span class="study-duck duck-one">🦆</span>
+                        <span class="study-duck duck-two">🦆</span>
                     </div>
-                </section>
-
-                <section aria-label="Thao tác nhanh">
-                    <div class="quick-actions-bar">
-                        <button type="button" id="btn-quick-exam" class="action-card-btn">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                            <span>Thi thử ngẫu nhiên</span>
-                        </button>
-                        <button type="button" id="btn-quick-practice" class="action-card-btn">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            <span>Luyện nhanh 10 câu</span>
-                        </button>
-                        <button type="button" id="btn-review-wrong" class="action-card-btn">
-                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                            <span>Ôn câu làm sai</span>
-                        </button>
+                    <div class="study-hero-copy">
+                        <span class="study-eyebrow">Space to learn in FPT</span>
+                        <h1>What do you want to learn today ?</h1>
                     </div>
                 </section>
 
@@ -246,25 +197,6 @@
                     </div>
                 </section>
 
-                <section aria-label="Danh sách môn học">
-                    <div class="section-title-wrapper">
-                        <h2 class="section-title">Danh Sách Môn Học</h2>
-                    </div>
-                    <div id="subjects-grid-container" class="subjects-grid">
-                        <!-- Dynamic content -->
-                    </div>
-                </section>
-
-                <section aria-label="Lịch sử thi gần đây">
-                    <div class="section-title-wrapper">
-                        <h2 class="section-title">Lịch Sử Làm Bài Gần Đây</h2>
-                    </div>
-                    <div class="recent-exams-card">
-                        <div id="recent-exams-container">
-                            <!-- Dynamic Content or Empty State -->
-                        </div>
-                    </div>
-                </section>
             </div>
 
             <!-- 2. SUBJECTS PAGE VIEW (Hidden by default) -->
@@ -771,7 +703,19 @@
                     <!-- Dynamic mobile cards -->
                 </div>
 
-                <!-- 4. PAGINATION CONTROLS -->
+                <!-- 4. QUESTION DETAILS -->
+                <section id="history-detail-panel" class="history-detail-panel hidden" aria-label="Chi tiết đáp án bài thi">
+                    <div class="history-detail-header">
+                        <div>
+                            <h2 id="history-detail-title" class="history-detail-title">Chi tiết bài thi</h2>
+                            <p id="history-detail-summary" class="history-detail-summary"></p>
+                        </div>
+                        <button type="button" id="history-detail-close" class="history-detail-close" aria-label="Đóng chi tiết">Đóng</button>
+                    </div>
+                    <div id="history-detail-list" class="history-detail-list"></div>
+                </section>
+
+                <!-- 5. PAGINATION CONTROLS -->
                 <div id="history-pagination-section" class="history-pagination">
                     <div id="history-pagination-info" class="pagination-info">
                         Hiển thị 1 - 10 trên tổng số 0 lượt thi
@@ -800,7 +744,6 @@
                 <input type="number" id="time-input" class="hidden" value="60">
             </div>
 
-            <p class="text-center text-sm mt-6" style="color: var(--text-secondary);">Last update: <span id="last-update"></span></p>
         </main>
     </div>
 

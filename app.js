@@ -19,7 +19,7 @@ function sanitizePathSegment(str) {
 }
 
 /**
- * Kiểm tra xem 1 chuỗi URL có hợp lệ và thuộc protocol an toàn (http/https/relative) hay không.
+ * Kiểm tra xem 1 chuỗi URL có hợp lệ và thuộc protocol an toàn hay không.
  * @param {string} urlString 
  * @returns {boolean}
  */
@@ -32,7 +32,6 @@ function isSafeUrl(urlString) {
         lower.startsWith('javascript:') ||
         lower.startsWith('vbscript:') ||
         lower.startsWith('data:') ||
-        lower.startsWith('file:') ||
         lower.startsWith('blob:')
     ) {
         return false;
@@ -40,6 +39,12 @@ function isSafeUrl(urlString) {
 
     if (trimmed.includes('..')) {
         return false;
+    }
+
+    const isLocalFileContext = typeof window !== 'undefined' && window.location && window.location.protocol === 'file:';
+
+    if (lower.startsWith('file:')) {
+        return isLocalFileContext;
     }
 
     try {
@@ -52,7 +57,11 @@ function isSafeUrl(urlString) {
             return true;
         }
 
-        if (typeof window !== 'undefined' && window.location && window.location.protocol === 'file:' && (trimmed.startsWith('./') || trimmed.startsWith('/') || !trimmed.includes(':'))) {
+        if (parsed.protocol === 'file:' && isLocalFileContext) {
+            return true;
+        }
+
+        if (isLocalFileContext && (trimmed.startsWith('./') || trimmed.startsWith('/') || !trimmed.includes(':'))) {
             return true;
         }
 
@@ -90,6 +99,9 @@ function isValidExamId(examId) {
     }
     if (sanitizePathSegment(trimmed) !== trimmed) {
         return false;
+    }
+    if (trimmed.startsWith('PRACTICE_') || trimmed.startsWith('WRONG_')) {
+        return true;
     }
     if (typeof EXAM_LIST !== 'undefined' && Array.isArray(EXAM_LIST)) {
         return EXAM_LIST.some(item => item && item.id === trimmed);
@@ -152,6 +164,56 @@ function validateExamData(dataArray) {
     return validQuestions;
 }
 
+function parseCsvText(csvText, delimiter) {
+    const rows = [];
+    let row = [];
+    let field = '';
+    let inQuotes = false;
+
+    for (let index = 0; index < csvText.length; index += 1) {
+        const character = csvText[index];
+
+        if (inQuotes) {
+            if (character === '"') {
+                if (csvText[index + 1] === '"') {
+                    field += '"';
+                    index += 1;
+                } else {
+                    inQuotes = false;
+                }
+            } else {
+                field += character;
+            }
+        } else if (character === '"' && field.length === 0) {
+            inQuotes = true;
+        } else if (character === delimiter) {
+            row.push(field);
+            field = '';
+        } else if (character === '\n' || character === '\r') {
+            if (character === '\r' && csvText[index + 1] === '\n') index += 1;
+            row.push(field);
+            if (row.some(value => value.trim() !== '')) rows.push(row);
+            row = [];
+            field = '';
+        } else {
+            field += character;
+        }
+    }
+
+    if (field.length > 0 || row.length > 0) {
+        row.push(field);
+        if (row.some(value => value.trim() !== '')) rows.push(row);
+    }
+
+    if (rows.length < 2) return [];
+
+    const headers = rows.shift().map(header => header.replace(/^\uFEFF/, '').trim());
+    return rows.map(values => headers.reduce((item, header, index) => {
+        item[header] = values[index] || '';
+        return item;
+    }, {}));
+}
+
 if (typeof window !== 'undefined') {
     window.InputValidator = {
         sanitizePathSegment: sanitizePathSegment,
@@ -167,7 +229,7 @@ if (typeof window !== 'undefined') {
 
 
 // ==========================================
-// 2. STATE ROUTING UY NHẤT CHO APP CONTROLLER
+// 2. STATE ROUTING CHO APP CONTROLLER
 // ==========================================
 
 const appState = {
@@ -175,31 +237,67 @@ const appState = {
     currentSubject: ""
 };
 
+let currentPageName = 'home';
+let examLoadToken = 0;
+let pendingNavigation = null;
+let allowQuizExitOnce = false;
+
+function initializeNavigationHistory() {
+    if (!window.history || !window.history.replaceState) return;
+    window.history.replaceState({ appPage: 'home', appRoot: true }, '', window.location.href);
+    window.history.pushState({ appPage: 'home', appRoot: true }, '', window.location.href);
+}
+
+function confirmQuizExit() {
+    if (allowQuizExitOnce) {
+        allowQuizExitOnce = false;
+        return true;
+    }
+    return currentPageName !== 'quiz' || !window.QuizEngine || !window.QuizEngine.hasActiveQuiz();
+}
+
+function requestQuizExit(navigation) {
+    pendingNavigation = navigation;
+    const dialog = document.getElementById('quiz-exit-confirm');
+    if (dialog) {
+        dialog.classList.remove('hidden');
+        document.getElementById('quiz-exit-cancel')?.focus();
+    }
+}
+
+function closeQuizExitDialog() {
+    const dialog = document.getElementById('quiz-exit-confirm');
+    if (dialog) dialog.classList.add('hidden');
+    pendingNavigation = null;
+}
+
+function acceptQuizExit() {
+    const navigation = pendingNavigation;
+    closeQuizExitDialog();
+    if (!navigation) return;
+    allowQuizExitOnce = true;
+    if (navigation.type === 'history') {
+        showPage(navigation.page, { fromHistory: true });
+    } else {
+        showPage(navigation.page, navigation.options || {});
+    }
+}
+
 
 // ==========================================
-// 3. CACHE DOM ELEMENTS (Safe DOM references)
-// ==========================================
-
-const DOM = {
-    appLogo: document.getElementById('app-logo'),
-    examSelect: document.getElementById('exam-select'),
-    lastUpdateSpan: document.getElementById('last-update')
-};
-
-
-// ==========================================
-// 4. NẠP DỮ LIỆU BỘ ĐỀ & BẮT ĐẦU THI (Exam Loader & Controller)
+// 3. NẠP DỮ LIỆU BỘ ĐỀ & BẮT ĐẦU THI (Exam Loader & Controller)
 // ==========================================
 
 function populateExamSelect() {
-    if (!DOM.examSelect || typeof EXAM_LIST === 'undefined' || !Array.isArray(EXAM_LIST)) return;
+    const examSelect = document.getElementById('exam-select');
+    if (!examSelect || typeof EXAM_LIST === 'undefined' || !Array.isArray(EXAM_LIST)) return;
 
-    DOM.examSelect.replaceChildren();
+    examSelect.replaceChildren();
 
     const defaultOption = document.createElement('option');
     defaultOption.value = "";
     defaultOption.textContent = "-- Chọn bộ đề --";
-    DOM.examSelect.appendChild(defaultOption);
+    examSelect.appendChild(defaultOption);
 
     const subjects = [...new Set(EXAM_LIST.map(e => e.subject || "Khác"))];
 
@@ -216,11 +314,12 @@ function populateExamSelect() {
             optGroup.appendChild(opt);
         });
 
-        DOM.examSelect.appendChild(optGroup);
+        examSelect.appendChild(optGroup);
     });
 }
 
-function loadExam(examId, subjectCode) {
+function loadExam(examId, subjectCode, limitCount) {
+    const currentLoadToken = ++examLoadToken;
     const targetExam = examId || appState.currentExam;
     const targetSubject = subjectCode || appState.currentSubject;
 
@@ -236,8 +335,9 @@ function loadExam(examId, subjectCode) {
     appState.currentExam = targetExam;
     appState.currentSubject = targetSubject;
 
-    if (DOM.examSelect) {
-        DOM.examSelect.value = targetExam;
+    const examSelect = document.getElementById('exam-select');
+    if (examSelect) {
+        examSelect.value = targetExam;
     }
 
     const safeSub = sanitizePathSegment(targetSubject);
@@ -265,37 +365,39 @@ function loadExam(examId, subjectCode) {
             return response.arrayBuffer();
         })
         .then(buffer => {
+            if (currentLoadToken !== examLoadToken) return;
             if (typeof XLSX === 'undefined') throw new Error("Thư viện XLSX chưa sẵn sàng.");
             const data = new Uint8Array(buffer);
             const workbook = XLSX.read(data, { type: 'array' });
             const firstSheet = workbook.SheetNames[0];
             const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], { defval: "" });
-            processExamData(jsonData);
+            if (!jsonData || jsonData.length === 0) {
+                throw new Error("File XLSX không chứa dữ liệu câu hỏi, chuyển sang nạp CSV.");
+            }
+            processExamData(jsonData, limitCount);
         })
         .catch(() => {
             // Fallback sang CSV
-            if (typeof Papa === 'undefined') {
-                alert("Không thể tải bộ đề: Thư viện PapaParse chưa được nạp.");
-                return;
-            }
-
-            Papa.parse(csvUrl, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    try {
-                        processExamData(results.data);
-                    } catch (err) {
-                        console.error("Lỗi khi xử lý dữ liệu CSV:", err);
-                        alert("Dữ liệu CSV không hợp lệ.");
-                    }
-                },
-                error: function(err) {
+            fetch(csvUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error(`CSV HTTP ${response.status}`);
+                    return response.text();
+                })
+                .then(csvText => {
+                    if (currentLoadToken !== examLoadToken) return;
+                    const firstLine = csvText.split(/\r?\n/, 1)[0] || '';
+                    const delimiter = firstLine.includes(';') ? ';' : ',';
+                    const parsedData = parseCsvText(csvText, delimiter);
+                    processExamData(parsedData, limitCount);
+                })
+                .catch(err => {
                     console.error("Lỗi nạp CSV:", err);
-                    alert("Không thể tải file dữ liệu cho bộ đề này.");
-                }
-            });
+                    if (typeof window !== 'undefined' && window.location && window.location.protocol === 'file:') {
+                        alert("Trình duyệt đang chặn nạp file dữ liệu cục bộ do chính sách CORS (file://).\nVui lòng khởi chạy ứng dụng qua Local Web Server (ví dụ: Live Server hoặc 'npx serve').");
+                    } else {
+                        alert("Không thể tải file dữ liệu cho bộ đề này.");
+                    }
+                });
         });
 }
 
@@ -320,8 +422,8 @@ function handleInitialUrlParams() {
     }
 }
 
-function processExamData(data) {
-    const validQuestions = validateExamData(data);
+function processExamData(data, limitCount) {
+    let validQuestions = validateExamData(data);
 
     if (validQuestions.length === 0) {
         alert("Bộ đề này không có câu hỏi hợp lệ!");
@@ -329,176 +431,190 @@ function processExamData(data) {
         return;
     }
 
-    const dashView = document.getElementById('dashboard-view');
-    const subView = document.getElementById('subjects-page-view');
-    const examView = document.getElementById('exams-page-view');
-    const quizScreen = document.getElementById('quiz-screen-view');
-
-    if (dashView) dashView.classList.add('hidden');
-    if (subView) subView.classList.add('hidden');
-    if (examView) examView.classList.add('hidden');
-    if (quizScreen) quizScreen.classList.remove('hidden');
-
     const examInfo = typeof EXAM_LIST !== 'undefined' ? EXAM_LIST.find(x => x.id === appState.currentExam) : null;
-    const examName = examInfo ? examInfo.name : appState.currentExam;
+    let examName = examInfo
+        ? `${examInfo.subject || appState.currentSubject} - ${examInfo.name}`
+        : appState.currentExam;
+    let examId = appState.currentExam;
+
+    if (typeof limitCount === 'number' && limitCount > 0 && validQuestions.length > limitCount) {
+        const shuffled = [...validQuestions];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        validQuestions = shuffled.slice(0, limitCount);
+        examName = `${examName} (Luyện nhanh ${limitCount} câu)`;
+        examId = `PRACTICE_QUICK_${limitCount}_${examId}`;
+    }
+
+    showPage('quiz');
 
     if (window.QuizEngine) {
-        window.QuizEngine.startQuiz(appState.currentExam, appState.currentSubject, examName, validQuestions);
+        window.QuizEngine.startQuiz(examId, appState.currentSubject, examName, validQuestions);
     }
 }
 
-function goHome() {
-    appState.currentExam = "";
-    appState.currentSubject = "";
 
-    if (DOM.examSelect) DOM.examSelect.value = "";
+// ==========================================
+// 4. ĐIỀU HƯỚNG TRANG SPA (SPA Router Engine)
+// ==========================================
 
-    const dashView = document.getElementById('dashboard-view');
-    const subView = document.getElementById('subjects-page-view');
-    const examView = document.getElementById('exams-page-view');
-    const quizScreen = document.getElementById('quiz-screen-view');
-    const resultView = document.getElementById('test-result-page-view');
-    const wrongView = document.getElementById('wrong-questions-page-view');
-    const statsView = document.getElementById('stats-page-view');
-    const historyView = document.getElementById('history-page-view');
-
-    if (subView) subView.classList.add('hidden');
-    if (examView) examView.classList.add('hidden');
-    if (quizScreen) quizScreen.classList.add('hidden');
-    if (resultView) resultView.classList.add('hidden');
-    if (wrongView) wrongView.classList.add('hidden');
-    if (statsView) statsView.classList.add('hidden');
-    if (historyView) historyView.classList.add('hidden');
-    if (dashView) dashView.classList.remove('hidden');
-
-    return true;
+function hideAllViews() {
+    const viewIds = [
+        'dashboard-view',
+        'subjects-page-view',
+        'exams-page-view',
+        'quiz-screen-view',
+        'test-result-page-view',
+        'wrong-questions-page-view',
+        'stats-page-view',
+        'history-page-view'
+    ];
+    viewIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
 }
 
+function showPage(pageName, options = {}) {
+    if (pageName !== currentPageName && !confirmQuizExit()) {
+        requestQuizExit({ type: 'page', page: pageName, options });
+        return false;
+    }
 
-// ==========================================
-// 5. ĐIỀU HƯỚNG TRANG SPA (SPA Page Router)
-// ==========================================
+    if (!options.fromHistory && pageName !== currentPageName && window.history && window.history.pushState) {
+        window.history.pushState({ appPage: pageName }, '', window.location.href);
+    }
+    if (pageName !== 'quiz') examLoadToken += 1;
+    currentPageName = pageName;
+    hideAllViews();
 
-window.addEventListener('page-change', (e) => {
-    const page = e.detail ? e.detail.page : 'home';
-    const dashView = document.getElementById('dashboard-view');
-    const subView = document.getElementById('subjects-page-view');
-    const examView = document.getElementById('exams-page-view');
-    const quizScreen = document.getElementById('quiz-screen-view');
-    const resultView = document.getElementById('test-result-page-view');
-    const wrongView = document.getElementById('wrong-questions-page-view');
-    const statsView = document.getElementById('stats-page-view');
-    const historyView = document.getElementById('history-page-view');
+    let targetId = 'dashboard-view';
 
-    if (page === 'subjects') {
-        if (dashView) dashView.classList.add('hidden');
-        if (examView) examView.classList.add('hidden');
-        if (quizScreen) quizScreen.classList.add('hidden');
-        if (resultView) resultView.classList.add('hidden');
-        if (wrongView) wrongView.classList.add('hidden');
-        if (statsView) statsView.classList.add('hidden');
-        if (historyView) historyView.classList.add('hidden');
-        if (subView) {
-            subView.classList.remove('hidden');
+    if (pageName === 'subjects') {
+        targetId = 'subjects-page-view';
+    } else if (pageName === 'exams') {
+        targetId = 'exams-page-view';
+    } else if (pageName === 'quiz') {
+        targetId = 'quiz-screen-view';
+    } else if (pageName === 'result') {
+        targetId = 'test-result-page-view';
+    } else if (pageName === 'wrong' || pageName === 'flagged') {
+        targetId = 'wrong-questions-page-view';
+    } else if (pageName === 'stats') {
+        targetId = 'stats-page-view';
+    } else if (pageName === 'history') {
+        targetId = 'history-page-view';
+    } else {
+        // 'home', 'settings' hoặc các trang mặc định
+        targetId = 'dashboard-view';
+    }
+
+    // Đảm bảo luôn hiển thị màn hình đích trước tiên
+    const targetEl = document.getElementById(targetId);
+    if (targetEl) {
+        targetEl.classList.remove('hidden');
+    }
+
+    // Bọc trong try-catch để ngoại lệ của 1 module không làm đứng việc chuyển trang
+    try {
+        if (pageName === 'subjects') {
             if (typeof window.updateSubjectsPage === 'function') window.updateSubjectsPage();
-        }
-    } else if (page === 'exams') {
-        if (dashView) dashView.classList.add('hidden');
-        if (subView) subView.classList.add('hidden');
-        if (quizScreen) quizScreen.classList.add('hidden');
-        if (resultView) resultView.classList.add('hidden');
-        if (wrongView) wrongView.classList.add('hidden');
-        if (statsView) statsView.classList.add('hidden');
-        if (historyView) historyView.classList.add('hidden');
-        if (examView) {
-            examView.classList.remove('hidden');
+        } else if (pageName === 'exams') {
             if (typeof window.updateExamsPage === 'function') window.updateExamsPage();
-        }
-    } else if (page === 'quiz') {
-        if (dashView) dashView.classList.add('hidden');
-        if (subView) subView.classList.add('hidden');
-        if (examView) examView.classList.add('hidden');
-        if (resultView) resultView.classList.add('hidden');
-        if (wrongView) wrongView.classList.add('hidden');
-        if (statsView) statsView.classList.add('hidden');
-        if (historyView) historyView.classList.add('hidden');
-        if (quizScreen) quizScreen.classList.remove('hidden');
-    } else if (page === 'result') {
-        if (dashView) dashView.classList.add('hidden');
-        if (subView) subView.classList.add('hidden');
-        if (examView) examView.classList.add('hidden');
-        if (quizScreen) quizScreen.classList.add('hidden');
-        if (wrongView) wrongView.classList.add('hidden');
-        if (statsView) statsView.classList.add('hidden');
-        if (historyView) historyView.classList.add('hidden');
-        if (resultView) resultView.classList.remove('hidden');
-    } else if (page === 'wrong') {
-        if (dashView) dashView.classList.add('hidden');
-        if (subView) subView.classList.add('hidden');
-        if (examView) examView.classList.add('hidden');
-        if (quizScreen) quizScreen.classList.add('hidden');
-        if (resultView) resultView.classList.add('hidden');
-        if (statsView) statsView.classList.add('hidden');
-        if (historyView) historyView.classList.add('hidden');
-        if (wrongView) {
-            wrongView.classList.remove('hidden');
+        } else if (pageName === 'wrong' || pageName === 'flagged') {
             if (window.WrongQuestionsModule && typeof window.WrongQuestionsModule.updatePage === 'function') {
                 window.WrongQuestionsModule.updatePage();
             }
-        }
-    } else if (page === 'stats') {
-        if (dashView) dashView.classList.add('hidden');
-        if (subView) subView.classList.add('hidden');
-        if (examView) examView.classList.add('hidden');
-        if (quizScreen) quizScreen.classList.add('hidden');
-        if (resultView) resultView.classList.add('hidden');
-        if (wrongView) wrongView.classList.add('hidden');
-        if (historyView) historyView.classList.add('hidden');
-        if (statsView) {
-            statsView.classList.remove('hidden');
+        } else if (pageName === 'stats') {
             if (window.StatsModule && typeof window.StatsModule.updatePage === 'function') {
                 window.StatsModule.updatePage();
             }
-        }
-    } else if (page === 'history') {
-        if (dashView) dashView.classList.add('hidden');
-        if (subView) subView.classList.add('hidden');
-        if (examView) examView.classList.add('hidden');
-        if (quizScreen) quizScreen.classList.add('hidden');
-        if (resultView) resultView.classList.add('hidden');
-        if (wrongView) wrongView.classList.add('hidden');
-        if (statsView) statsView.classList.add('hidden');
-        if (historyView) {
-            historyView.classList.remove('hidden');
+        } else if (pageName === 'history') {
             if (window.HistoryModule && typeof window.HistoryModule.updatePage === 'function') {
                 window.HistoryModule.updatePage();
             }
         }
-    } else {
-        if (subView) subView.classList.add('hidden');
-        if (examView) examView.classList.add('hidden');
-        if (quizScreen) quizScreen.classList.add('hidden');
-        if (resultView) resultView.classList.add('hidden');
-        if (wrongView) wrongView.classList.add('hidden');
-        if (statsView) statsView.classList.add('hidden');
-        if (historyView) historyView.classList.add('hidden');
-        if (dashView) dashView.classList.remove('hidden');
+    } catch (err) {
+        console.error(`Lỗi khi làm mới dữ liệu màn hình ${pageName}:`, err);
     }
+
+    window.dispatchEvent(new CustomEvent('page-rendered', {
+        detail: { page: pageName }
+    }));
+}
+
+function goHome() {
+    if (!confirmQuizExit()) {
+        requestQuizExit({ type: 'page', page: 'home' });
+        return false;
+    }
+
+    appState.currentExam = "";
+    appState.currentSubject = "";
+
+    const examSelect = document.getElementById('exam-select');
+    if (examSelect) examSelect.value = "";
+
+    showPage('home');
+    return true;
+}
+
+function goBack() {
+    if (currentPageName === 'home') return true;
+    if (window.history && window.history.back) {
+        window.history.back();
+    } else {
+        goHome();
+    }
+    return true;
+}
+
+window.addEventListener('popstate', (event) => {
+    if (!confirmQuizExit()) {
+        if (window.history && window.history.pushState) {
+            window.history.pushState({ appPage: currentPageName }, '', window.location.href);
+        }
+        requestQuizExit({ type: 'history', page: event.state && event.state.appPage ? event.state.appPage : 'home' });
+        return;
+    }
+
+    if (!event.state || event.state.appRoot) {
+        if (window.history && window.history.pushState) {
+            window.history.pushState({ appPage: 'home', appRoot: true }, '', window.location.href);
+        }
+        showPage('home', { fromHistory: true });
+        return;
+    }
+
+    const page = event.state && event.state.appPage ? event.state.appPage : 'home';
+    showPage(page, { fromHistory: true });
+});
+
+window.addEventListener('page-change', (e) => {
+    const page = e.detail ? e.detail.page : 'home';
+    showPage(page);
 });
 
 
 // ==========================================
-// 6. ĐĂNG KÝ EVENT LISTENERS AN TOÀN
+// 5. ĐĂNG KÝ EVENT LISTENERS AN TOÀN
 // ==========================================
 
 function bindEventListeners() {
     try {
-        if (DOM.appLogo) {
-            DOM.appLogo.addEventListener('click', () => goHome());
+        const appLogo = document.getElementById('header-logo') || document.getElementById('app-logo');
+        if (appLogo) {
+            appLogo.addEventListener('click', (e) => {
+                e.preventDefault();
+                goHome();
+            });
         }
 
-        if (DOM.examSelect) {
-            DOM.examSelect.addEventListener('change', (e) => {
+        const examSelect = document.getElementById('exam-select');
+        if (examSelect) {
+            examSelect.addEventListener('change', (e) => {
                 const selectedId = e.target.value;
                 if (selectedId) {
                     if (typeof EXAM_LIST !== 'undefined' && Array.isArray(EXAM_LIST)) {
@@ -519,14 +635,14 @@ function bindEventListeners() {
 
 
 // ==========================================
-// 7. KHỞI TẠO ỨNG DỤNG (Application Init)
+// 6. KHỞI TẠO ỨNG DỤNG (Application Init)
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        if (DOM.lastUpdateSpan) {
-            DOM.lastUpdateSpan.textContent = new Date(document.lastModified).toLocaleString('vi-VN');
-        }
+        initializeNavigationHistory();
+        document.getElementById('quiz-exit-cancel')?.addEventListener('click', closeQuizExitDialog);
+        document.getElementById('quiz-exit-accept')?.addEventListener('click', acceptQuizExit);
         populateExamSelect();
         bindEventListeners();
         handleInitialUrlParams();
@@ -535,9 +651,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Xuất các API cho window để hỗ trợ làm lại bài thi & nạp đề
+// Xuất các API cho window
 if (typeof window !== 'undefined') {
     window.loadExam = loadExam;
     window.goHome = goHome;
+    window.goBack = goBack;
+    window.confirmQuizExit = confirmQuizExit;
+    window.showPage = showPage;
     window.appState = appState;
 }

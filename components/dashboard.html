@@ -3,36 +3,14 @@
   Bố cục Dashboard chuẩn Accessibility & Responsive
 ========================================== -->
 <div id="dashboard-view" class="dashboard-container">
-    <!-- 1. WELCOME HERO SECTION -->
-    <section class="welcome-hero" aria-label="Chào mừng người dùng">
-        <div>
-            <h1 class="welcome-title">Xin chào, Học viên! 👋</h1>
-            <p class="welcome-desc">Chào mừng bạn quay trở lại. Hãy chọn một môn học hoặc bộ đề bất kỳ để bắt đầu luyện tập ngay hôm nay!</p>
+    <section class="study-hero" aria-label="Không gian học tập">
+        <div class="study-skyline" aria-hidden="true">
+            <span class="study-cloud cloud-one"></span><span class="study-cloud cloud-two"></span>
+            <span class="study-tree tree-left">🌳</span><span class="study-tree tree-right">🌳</span>
+            <span class="study-bird bird-one">⌁</span><span class="study-bird bird-two">⌁</span>
+            <span class="study-bus">🚌</span><span class="study-duck duck-one">🦆</span><span class="study-duck duck-two">🦆</span>
         </div>
-    </section>
-
-    <!-- 2. QUICK ACTIONS BAR -->
-    <section aria-label="Thao tác nhanh">
-        <div class="quick-actions-bar">
-            <button type="button" id="btn-quick-exam" class="action-card-btn">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                </svg>
-                <span>Thi thử ngẫu nhiên</span>
-            </button>
-            <button type="button" id="btn-quick-practice" class="action-card-btn">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                <span>Luyện nhanh 10 câu</span>
-            </button>
-            <button type="button" id="btn-review-wrong" class="action-card-btn">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                </svg>
-                <span>Ôn câu làm sai</span>
-            </button>
-        </div>
+        <div class="study-hero-copy"><span class="study-eyebrow">Góc học tập FE</span><h1>Hôm nay bạn muốn học gì?</h1><p>Mỗi câu hỏi là một bước tiến nhỏ.</p></div>
     </section>
 
     <!-- 3. STATISTICS CARDS -->
@@ -93,25 +71,4 @@
         </div>
     </section>
 
-    <!-- 4. SUBJECT CARDS SECTION -->
-    <section aria-label="Danh sách môn học">
-        <div class="section-title-wrapper">
-            <h2 class="section-title">Danh Sách Môn Học</h2>
-        </div>
-        <div id="subjects-grid-container" class="subjects-grid">
-            <!-- Will be dynamically populated via DOM API -->
-        </div>
-    </section>
-
-    <!-- 5. RECENT EXAMS SECTION -->
-    <section aria-label="Lịch sử thi gần đây">
-        <div class="section-title-wrapper">
-            <h2 class="section-title">Lịch Sử Làm Bài Gần Đây</h2>
-        </div>
-        <div class="recent-exams-card">
-            <div id="recent-exams-container">
-                <!-- Dynamic Content or Empty State -->
-            </div>
-        </div>
-    </section>
 </div>

@@ -13,7 +13,6 @@
                     </svg>
                     <span>Lịch Sử Làm Bài Thi</span>
                 </h1>
-                <p class="history-title-desc">Theo dõi nhật ký kết quả thi, danh sách câu đúng/sai và làm lại bài thi.</p>
             </div>
 
             <div class="history-toolbar-controls">
@@ -63,11 +62,20 @@
         <!-- Dynamic mobile cards -->
     </div>
 
-    <!-- 4. PAGINATION CONTROLS -->
-    <div id="history-pagination-section" class="history-pagination">
-        <div id="history-pagination-info" class="pagination-info">
-            Hiển thị 1 - 10 trên tổng số 0 lượt thi
+    <!-- 4. QUESTION DETAILS -->
+    <section id="history-detail-panel" class="history-detail-panel hidden" aria-label="Chi tiết đáp án bài thi">
+        <div class="history-detail-header">
+            <div>
+                <h2 id="history-detail-title" class="history-detail-title">Chi tiết bài thi</h2>
+                <p id="history-detail-summary" class="history-detail-summary"></p>
+            </div>
+            <button type="button" id="history-detail-close" class="history-detail-close" aria-label="Đóng chi tiết">Đóng</button>
         </div>
+        <div id="history-detail-list" class="history-detail-list"></div>
+    </section>
+
+    <!-- 5. PAGINATION CONTROLS -->
+    <div id="history-pagination-section" class="history-pagination">
         <div id="history-pagination-buttons" class="pagination-buttons">
             <!-- Dynamic page buttons -->
         </div>

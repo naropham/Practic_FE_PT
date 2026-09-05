@@ -5,39 +5,22 @@
 <header class="app-header" aria-label="Thanh điều hướng chính">
     <!-- Khối bên trái: Nút Toggle Sidebar & Logo -->
     <div class="header-left">
-        <button type="button" id="sidebar-toggle-btn" class="icon-btn" aria-label="Mở hoặc đóng menu ứng dụng" title="Mở/Đóng Sidebar">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-        </button>
-        <a href="#" id="header-logo" class="header-logo" title="Trở về trang chủ">
+        <div class="header-menu-wrap">
+        <button type="button" id="header-logo" class="header-logo" aria-haspopup="true" aria-expanded="false" title="Mở danh sách trang">
             <span>📝 Luyện Đề FE</span>
-        </a>
-    </div>
-
-    <!-- Khối ở giữa: Thanh tìm kiếm -->
-    <div class="header-center">
-        <div class="search-box">
-            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-            <input type="search" id="header-search-input" class="search-input" placeholder="Tìm kiếm bộ đề, môn học... (Bấm '/' để tìm nhanh)" aria-label="Tìm kiếm bộ đề hoặc môn học">
-            <kbd class="search-shortcut">Ctrl K</kbd>
+        </button>
+        <nav id="header-page-menu" class="header-page-menu hidden" aria-label="Danh sách trang">
+            <button type="button" data-header-page="home">🏠 <span>Trang chủ</span></button>
+            <button type="button" data-header-page="subjects">📚 <span>Môn học</span></button>
+            <button type="button" data-header-page="exams">📝 <span>Luyện đề</span></button>
+            <button type="button" data-header-page="history">🕒 <span>Lịch sử làm bài</span></button>
+            <button type="button" data-header-page="stats">📊 <span>Thống kê</span></button>
+        </nav>
         </div>
     </div>
 
-    <!-- Khối bên phải: Nút thông báo, Nút Dark mode, Avatar -->
+    <!-- Khối bên phải: Nút Dark mode, Avatar -->
     <div class="header-right">
-        <!-- Nút Thông báo -->
-        <div class="nav-badge-container">
-            <button type="button" id="notification-btn" class="icon-btn" aria-label="Xem thông báo mới" title="Thông báo">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                </svg>
-                <span class="badge" title="Có thông báo mới"></span>
-            </button>
-        </div>
-
         <!-- Nút chuyển Light / Dark mode -->
         <button type="button" id="theme-toggle-btn" class="icon-btn theme-toggle-btn" aria-label="Chuyển đổi giao diện Sáng / Tối" title="Đổi giao diện Sáng/Tối">
             <!-- Icon Mặt trời (Light Mode) -->
@@ -52,7 +35,7 @@
 
         <!-- Avatar Người dùng -->
         <button type="button" id="user-avatar-btn" class="user-avatar-btn" aria-label="Tài khoản người dùng" title="Tài khoản">
-            <img src="./assets/images/default-avatar.svg" alt="Avatar" class="user-avatar-img">
+            <img src="./assets/images/avatar.jpg" alt="Avatar" class="user-avatar-img">
         </button>
     </div>
 </header>

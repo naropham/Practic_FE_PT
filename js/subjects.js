@@ -4,7 +4,7 @@
  * Tuân thủ an toàn DOM API: Dùng textContent & createElement (Không innerHTML).
  */
 
-(function () {
+(function (global) {
   'use strict';
 
   const HISTORY_STORAGE_KEY = 'luyenDe_exam_history';
@@ -53,7 +53,7 @@
     return uniqueSubjects.map(code => {
       const examsInSubject = EXAM_LIST.filter(e => (e.subject || "Khác") === code);
       const examCount = examsInSubject.length;
-      const questionCount = examCount * 50;
+      const questionCount = examsInSubject.reduce((acc, cur) => acc + (cur.questionCount || 50), 0);
 
       // Tính điểm trung bình môn từ lịch sử
       const subHistory = history.filter(h => h.subject === code);
@@ -228,16 +228,15 @@
       statsList.appendChild(item2);
       statsList.appendChild(item3);
 
-      // Nút Luyện Ngay
+      // Mở danh sách bộ đề theo môn học
       const practiceBtn = document.createElement('button');
       practiceBtn.type = "button";
       practiceBtn.className = "btn-practice";
-      practiceBtn.textContent = "Luyện ngay";
+      practiceBtn.textContent = "Xem bộ đề";
       practiceBtn.addEventListener('click', () => {
-        const examSelect = document.getElementById('exam-select');
-        if (examSelect && sub.exams.length > 0) {
-          examSelect.value = sub.exams[0].id;
-          examSelect.dispatchEvent(new Event('change'));
+        if (typeof window.showPage === 'function') window.showPage('exams');
+        if (typeof window.setSelectedSubjectForExams === 'function') {
+          window.setSelectedSubjectForExams(sub.code);
         }
       });
 
@@ -316,14 +315,6 @@
       sortSelect.addEventListener('change', updateSubjectsPage);
     }
 
-    // Lắng nghe sự kiện tìm kiếm từ Header
-    window.addEventListener('header-search', (e) => {
-      if (e.detail && typeof e.detail.query === 'string' && searchInput) {
-        searchInput.value = e.detail.query;
-        updateSubjectsPage();
-      }
-    });
-
     // Render danh sách ban đầu
     updateSubjectsPage();
   }
@@ -332,4 +323,4 @@
 
   // Export hàm để làm mới dữ liệu khi người dùng chuyển trang
   window.updateSubjectsPage = updateSubjectsPage;
-})();
+})(typeof window !== 'undefined' ? window : this);

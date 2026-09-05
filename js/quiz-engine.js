@@ -63,8 +63,18 @@
     quizState.markedQuestions.clear();
     quizState.isSubmitted = false;
 
+    // Xác định thời lượng làm bài thực tế (BUG-08)
+    let totalExamTime = 3600;
+    if (typeof EXAM_LIST !== 'undefined' && Array.isArray(EXAM_LIST)) {
+      const examItem = EXAM_LIST.find(e => e.id === examId);
+      if (examItem && typeof examItem.durationMinutes === 'number' && examItem.durationMinutes > 0) {
+        totalExamTime = examItem.durationMinutes * 60;
+      }
+    }
+    quizState.initialTimeSeconds = totalExamTime;
+
     // Kiểm tra bản nháp tiến độ dở dang từ StorageModule
-    let initialTimerSec = 3600; // 60 phút mặc định
+    let initialTimerSec = totalExamTime;
     if (global.StorageModule) {
       const draft = global.StorageModule.loadDraft(examId);
       if (draft && draft.answers && typeof draft.answers === 'object') {
@@ -161,19 +171,26 @@
       if (safeSrc) {
         DOM.questionImage.src = safeSrc;
         DOM.questionImage.style.display = '';
+        DOM.questionImage.onclick = () => openQuizImage(safeSrc, DOM.questionImage.alt);
         DOM.questionImage.onerror = function () {
           this.style.display = 'none';
         };
       } else {
         DOM.questionImage.src = '';
         DOM.questionImage.style.display = 'none';
+        DOM.questionImage.onclick = null;
       }
       DOM.questionImage.alt = `Câu hỏi ${idx + 1}`;
     }
 
-    // 2. Nhãn câu hỏi hiện tại
+    // 2. Nhãn câu hỏi hiện tại (BUG-04)
+    const correctStr = String(qItem ? qItem.correct_answer || '' : '').toUpperCase().trim();
+    const isMulti = correctStr.length > 1;
+
     if (DOM.questionIndexLabel) {
-      DOM.questionIndexLabel.textContent = `Câu ${idx + 1} / ${totalQ}`;
+      DOM.questionIndexLabel.textContent = isMulti
+        ? `Câu ${idx + 1} / ${totalQ} (Chọn nhiều đáp án)`
+        : `Câu ${idx + 1} / ${totalQ}`;
     }
 
     // 3. Checkbox đánh dấu
@@ -182,18 +199,27 @@
       DOM.flagCheckbox.disabled = quizState.isSubmitted;
     }
 
-    // 4. Trạng thái nút chọn đáp án (A-F)
-    const currentAnswerChar = quizState.answers[idx] || null;
+    // 4. Trạng thái nút chọn đáp án (A-F) (BUG-04, BUG-05)
+    const currentAnswerChar = String(quizState.answers[idx] || '').toUpperCase();
     const optButtons = DOM.answerContainer ? DOM.answerContainer.querySelectorAll('.quiz-opt-btn') : [];
 
     optButtons.forEach(btn => {
       const char = btn.getAttribute('data-answer');
-      if (currentAnswerChar === char) {
-        btn.classList.add('selected-btn');
+      btn.classList.remove('selected-btn', 'correct-btn', 'wrong-btn');
+
+      if (quizState.isSubmitted) {
+        btn.disabled = true;
+        if (correctStr.includes(char)) {
+          btn.classList.add('correct-btn');
+        } else if (currentAnswerChar.includes(char)) {
+          btn.classList.add('wrong-btn');
+        }
       } else {
-        btn.classList.remove('selected-btn');
+        btn.disabled = false;
+        if (currentAnswerChar.includes(char)) {
+          btn.classList.add('selected-btn');
+        }
       }
-      btn.disabled = quizState.isSubmitted;
     });
 
     // 5. Nút chuyển câu trước / câu tiếp
@@ -205,6 +231,43 @@
 
     // 7. Bảng nốt chuyển câu (Nav Dots)
     renderNavDots();
+  }
+
+  function openQuizImage(src, alt) {
+    if (!src) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'history-image-lightbox';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-label', 'Ảnh câu hỏi phóng to');
+
+    const image = document.createElement('img');
+    image.className = 'history-image-lightbox-content';
+    image.src = src;
+    image.alt = alt || 'Ảnh câu hỏi phóng to';
+
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'history-image-lightbox-close';
+    closeButton.setAttribute('aria-label', 'Đóng ảnh phóng to');
+    closeButton.textContent = 'Đóng';
+
+    const close = () => {
+      document.removeEventListener('keydown', handleKeydown);
+      overlay.remove();
+    };
+    const handleKeydown = event => {
+      if (event.key === 'Escape') close();
+    };
+
+    closeButton.addEventListener('click', close);
+    overlay.addEventListener('click', event => {
+      if (event.target === overlay) close();
+    });
+    document.addEventListener('keydown', handleKeydown);
+
+    overlay.append(image, closeButton);
+    document.body.appendChild(overlay);
   }
 
   /**
@@ -237,10 +300,21 @@
 
       let dotClass = "dot-btn ";
 
-      if (quizState.markedQuestions.has(i)) {
-        dotClass += "dot-flagged ";
-      } else if (quizState.answers[i]) {
-        dotClass += "dot-answered ";
+      if (quizState.isSubmitted) {
+        const q = quizState.questions[i];
+        const correctStr = String(q ? q.correct_answer || '' : '').toUpperCase().trim().split('').sort().join('');
+        const userStr = String(quizState.answers[i] || '').toUpperCase().trim().split('').sort().join('');
+        if (userStr === correctStr && correctStr !== '') {
+          dotClass += "dot-correct ";
+        } else if (userStr !== '') {
+          dotClass += "dot-wrong ";
+        }
+      } else {
+        if (quizState.markedQuestions.has(i)) {
+          dotClass += "dot-flagged ";
+        } else if (quizState.answers[i]) {
+          dotClass += "dot-answered ";
+        }
       }
 
       if (i === quizState.currentQuestion) {
@@ -259,10 +333,29 @@
     if (quizState.isSubmitted || !['A', 'B', 'C', 'D', 'E', 'F'].includes(char)) return;
 
     const idx = quizState.currentQuestion;
-    if (quizState.answers[idx] === char) {
-      delete quizState.answers[idx]; // Bỏ chọn nếu click lại
+    const qItem = quizState.questions[idx];
+    const correctStr = String(qItem ? qItem.correct_answer || '' : '').toUpperCase().trim();
+    const isMulti = correctStr.length > 1;
+
+    if (isMulti) {
+      let currentChars = String(quizState.answers[idx] || '').toUpperCase().split('').filter(c => c);
+      if (currentChars.includes(char)) {
+        currentChars = currentChars.filter(c => c !== char);
+      } else {
+        currentChars.push(char);
+      }
+      currentChars.sort();
+      if (currentChars.length > 0) {
+        quizState.answers[idx] = currentChars.join('');
+      } else {
+        delete quizState.answers[idx];
+      }
     } else {
-      quizState.answers[idx] = char;
+      if (quizState.answers[idx] === char) {
+        delete quizState.answers[idx];
+      } else {
+        quizState.answers[idx] = char;
+      }
     }
 
     renderQuizUI();
@@ -315,8 +408,8 @@
     let skippedCount = 0;
 
     quizState.questions.forEach((q, i) => {
-      const correctStr = String(q.correct_answer || '').toUpperCase().trim();
-      const userStr = String(quizState.answers[i] || '').toUpperCase().trim();
+      const correctStr = String(q.correct_answer || '').toUpperCase().trim().split('').sort().join('');
+      const userStr = String(quizState.answers[i] || '').toUpperCase().trim().split('').sort().join('');
       if (!userStr) {
         skippedCount++;
       } else if (userStr === correctStr && correctStr !== '') {
@@ -335,16 +428,16 @@
     const scoreNum = Math.min(10, Math.max(0, rawScore));
     const score = scoreNum.toFixed(2);
 
-    // 1. Tính toán thời gian làm bài
+    // 1. Tính toán thời gian làm bài (BUG-08)
     const remSec = global.TimerModule ? global.TimerModule.getRemainingSeconds() : 0;
-    const spentSec = Math.max(0, 3600 - remSec);
+    const spentSec = Math.max(0, quizState.initialTimeSeconds - remSec);
     const spentMins = Math.floor(spentSec / 60);
 
     // Thu thập danh sách các câu trả lời sai hoặc bỏ trống
     const wrongItemsList = [];
     quizState.questions.forEach((q, i) => {
-      const correctStr = String(q.correct_answer || '').toUpperCase().trim();
-      const userStr = String(quizState.answers[i] || '').toUpperCase().trim();
+      const correctStr = String(q.correct_answer || '').toUpperCase().trim().split('').sort().join('');
+      const userStr = String(quizState.answers[i] || '').toUpperCase().trim().split('').sort().join('');
       if (userStr !== correctStr) {
         wrongItemsList.push({
           question_id: q.question_id || `Q${i + 1}`,
@@ -357,14 +450,34 @@
 
     // 2. Lưu vào Lịch sử, Lưu câu sai & Xóa bản nháp tiến độ
     if (global.StorageModule) {
+      const questionDetails = quizState.questions.map((question, index) => {
+        const correctAnswer = String(question.correct_answer || '').toUpperCase().trim().split('').sort().join('');
+        const userAnswer = String(quizState.answers[index] || '').toUpperCase().trim().split('').sort().join('');
+        const questionId = question.question_id || `Q${index + 1}`;
+        const safeSubject = String(quizState.subject || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        const safeExam = String(quizState.examId || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        const safeQuestionId = String(questionId).replace('.webp', '').replace(/[^a-zA-Z0-9_-]/g, '');
+        return {
+          questionId: questionId,
+          questionText: question.question || '',
+          linkMedia: question.link_media || `./data/images/${safeSubject}/${safeExam}/${safeQuestionId}.webp`,
+          userAnswer: userAnswer,
+          correctAnswer: correctAnswer || 'N/A',
+          isCorrect: userAnswer === correctAnswer,
+          isMarked: quizState.markedQuestions.has(index)
+        };
+      });
+
       global.StorageModule.saveExamResult({
         examId: quizState.examId,
         subject: quizState.subject,
         examName: quizState.examName,
         score: score,
         correctCount: correctCount,
+        wrongCount: wrongCount,
         totalQuestions: totalQ,
-        timeSpentText: `${spentMins} phút`
+        timeSpentText: `${spentMins} phút`,
+        questionDetails: questionDetails
       });
 
       if (wrongItemsList.length > 0) {
@@ -403,14 +516,18 @@
    */
   function autoSaveProgress() {
     if (quizState.isSubmitted || !global.StorageModule) return;
-    const remSec = global.TimerModule ? global.TimerModule.getRemainingSeconds() : 3600;
+    const remSec = global.TimerModule ? global.TimerModule.getRemainingSeconds() : quizState.initialTimeSeconds;
 
     global.StorageModule.saveDraft(quizState.examId, {
       answers: quizState.answers,
-      markedQuestions: quizState.markedQuestions,
+      markedQuestions: Array.from(quizState.markedQuestions),
       currentQuestion: quizState.currentQuestion,
       remainingTime: remSec
     });
+  }
+
+  function hasActiveQuiz() {
+    return quizState.questions.length > 0 && !quizState.isSubmitted;
   }
 
   /**
@@ -517,8 +634,16 @@
 
   document.addEventListener('DOMContentLoaded', bindEventListeners);
 
+  window.addEventListener('beforeunload', (event) => {
+    if (hasActiveQuiz()) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
+  });
+
   global.QuizEngine = {
     startQuiz: startQuiz,
-    submitQuiz: submitQuiz
+    submitQuiz: submitQuiz,
+    hasActiveQuiz: hasActiveQuiz
   };
 })(window);

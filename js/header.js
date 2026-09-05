@@ -60,32 +60,14 @@
     // Khởi tạo Theme ban đầu
     initTheme();
 
-    const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
-    const notificationBtn = document.getElementById('notification-btn');
     const avatarBtn = document.getElementById('user-avatar-btn');
-    const searchInput = document.getElementById('header-search-input');
     const logoBtn = document.getElementById('header-logo');
-
-    // Nút Bật/Tắt Sidebar
-    if (sidebarToggleBtn) {
-      sidebarToggleBtn.addEventListener('click', () => {
-        document.body.classList.toggle('sidebar-collapsed');
-        // Phát event tùy chỉnh để các component khác lắng nghe nếu cần
-        window.dispatchEvent(new CustomEvent('toggle-sidebar'));
-      });
-    }
+    const pageMenu = document.getElementById('header-page-menu');
 
     // Nút Bật/Tắt Dark Mode
     if (themeToggleBtn) {
       themeToggleBtn.addEventListener('click', toggleTheme);
-    }
-
-    // Nút Thông báo
-    if (notificationBtn) {
-      notificationBtn.addEventListener('click', () => {
-        alert("Hiện tại chưa có thông báo mới!");
-      });
     }
 
     // Nút Avatar Người Dùng
@@ -95,33 +77,40 @@
       });
     }
 
-    // Nút Logo về trang chủ
+    // Menu chọn nhanh các trang trong ứng dụng
     if (logoBtn) {
       logoBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        if (typeof window.goHome === 'function') {
-          window.goHome();
-        }
+        const isOpen = pageMenu && !pageMenu.classList.contains('hidden');
+        if (pageMenu) pageMenu.classList.toggle('hidden', isOpen);
+        logoBtn.setAttribute('aria-expanded', String(!isOpen));
       });
     }
 
-    // Xử lý ô Tìm kiếm (Keyboard Accessibility)
-    if (searchInput) {
-      // Phím tắt Ctrl+K hoặc phím / để focus nhanh vào thanh tìm kiếm
-      document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey && e.key.toLowerCase() === 'k') || (e.key === '/' && document.activeElement !== searchInput)) {
-          e.preventDefault();
-          searchInput.focus();
-        } else if (e.key === 'Escape' && document.activeElement === searchInput) {
-          searchInput.blur();
-        }
-      });
-
-      // Lắng nghe sự kiện gõ ô tìm kiếm
-      searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.trim().toLowerCase();
-        window.dispatchEvent(new CustomEvent('header-search', { detail: { query } }));
+    if (pageMenu) {
+      pageMenu.addEventListener('click', (event) => {
+        const pageButton = event.target.closest('[data-header-page]');
+        if (!pageButton) return;
+        const page = pageButton.getAttribute('data-header-page');
+        pageMenu.classList.add('hidden');
+        if (logoBtn) logoBtn.setAttribute('aria-expanded', 'false');
+        if (page) window.dispatchEvent(new CustomEvent('page-change', { detail: { page } }));
       });
     }
+
+    document.addEventListener('click', (event) => {
+      if (pageMenu && logoBtn && !event.target.closest('.header-menu-wrap')) {
+        pageMenu.classList.add('hidden');
+        logoBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && pageMenu && !pageMenu.classList.contains('hidden')) {
+        pageMenu.classList.add('hidden');
+        if (logoBtn) logoBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
   });
 })();

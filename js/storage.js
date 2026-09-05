@@ -5,7 +5,7 @@
  * - 100% JSON.parse bọc try/catch.
  * - Kiểm tra kiểu dữ liệu, giới hạn độ dài chuỗi, số hữu hạn (Number.isFinite).
  * - Không tin tưởng score từ localStorage (tự động tính lại & clamp 0-10).
- * - Không lưu đáp án đúng/mật khẩu/token vào localStorage.
+ * - Chỉ lưu đáp án trong lịch sử bài thi để người học xem lại kết quả của chính mình.
  */
 
 (function (global) {
@@ -33,6 +33,24 @@
     return trimmed.length > limit ? trimmed.substring(0, limit) : trimmed;
   }
 
+  function sanitizeQuestionDetails(details) {
+    if (!Array.isArray(details)) return [];
+
+    return details.slice(0, 500).map(item => {
+      if (!item || typeof item !== 'object') return null;
+      const media = sanitizeString(item.linkMedia || item.link_media, '', 1000);
+      return {
+        questionId: sanitizeString(item.questionId || item.question_id, '', 150),
+        questionText: sanitizeString(item.questionText || item.question, '', 2000),
+        linkMedia: media && typeof window !== 'undefined' && typeof window.isSafeUrl === 'function' && window.isSafeUrl(media) ? media : '',
+        userAnswer: sanitizeString(item.userAnswer, '', 50),
+        correctAnswer: sanitizeString(item.correctAnswer, 'N/A', 50),
+        isCorrect: item.isCorrect === true,
+        isMarked: item.isMarked === true
+      };
+    }).filter(Boolean);
+  }
+
   function validateExamId(examId) {
     if (typeof window !== 'undefined' && typeof window.isValidExamId === 'function') {
       return window.isValidExamId(examId);
@@ -40,6 +58,7 @@
     if (typeof examId !== 'string') return false;
     const trimmed = examId.trim();
     if (!trimmed || trimmed.length > 100 || trimmed.includes('..') || trimmed.includes('/') || trimmed.includes('\\')) return false;
+    if (trimmed.startsWith('PRACTICE_') || trimmed.startsWith('WRONG_')) return true;
     return /^[a-zA-Z0-9_\-]+$/.test(trimmed);
   }
 
@@ -183,6 +202,7 @@
           correctCount: correctC,
           wrongCount: wrongC,
           totalQuestions: totalQ,
+          questionDetails: sanitizeQuestionDetails(resultObj.questionDetails),
           date: now.toISOString(),
           dateFormatted: now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
           timeSpentText: sanitizeString(resultObj.timeSpentText, 'N/A', 50)
@@ -245,6 +265,7 @@
             correctCount: correctC,
             wrongCount: wrongC,
             totalQuestions: totalQ,
+            questionDetails: sanitizeQuestionDetails(item.questionDetails),
             date: sanitizeString(item.date, new Date().toISOString(), 100),
             dateFormatted: sanitizeString(item.dateFormatted, '', 100),
             timeSpentText: sanitizeString(item.timeSpentText, 'N/A', 50)
