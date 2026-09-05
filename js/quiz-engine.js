@@ -45,7 +45,11 @@
    * 1. KHỞI TẠO VÀ BẮT ĐẦU BÀI THI
    */
   function startQuiz(examId, subjectCode, examName, validQuestionsArray) {
-    if (!examId || !Array.isArray(validQuestionsArray) || validQuestionsArray.length === 0) {
+    const checkValidExam = (typeof window !== 'undefined' && typeof window.isValidExamId === 'function')
+      ? window.isValidExamId
+      : function(id) { return typeof id === 'string' && id.trim().length > 0 && id.length <= 100 && !id.includes('..'); };
+
+    if (!examId || !checkValidExam(examId) || !Array.isArray(validQuestionsArray) || validQuestionsArray.length === 0) {
       alert("Không thể bắt đầu: Dữ liệu bộ đề không hợp lệ.");
       return;
     }
@@ -60,15 +64,26 @@
     quizState.isSubmitted = false;
 
     // Kiểm tra bản nháp tiến độ dở dang từ StorageModule
+    let initialTimerSec = 3600; // 60 phút mặc định
     if (global.StorageModule) {
       const draft = global.StorageModule.loadDraft(examId);
-      if (draft && draft.answers) {
+      if (draft && draft.answers && typeof draft.answers === 'object') {
         quizState.answers = draft.answers;
         if (Array.isArray(draft.markedQuestions)) {
           quizState.markedQuestions = new Set(draft.markedQuestions);
         }
-        if (typeof draft.currentQuestion === 'number' && draft.currentQuestion < validQuestionsArray.length) {
+        if (typeof draft.currentQuestion === 'number' && draft.currentQuestion >= 0 && draft.currentQuestion < validQuestionsArray.length) {
           quizState.currentQuestion = draft.currentQuestion;
+        }
+        if (typeof draft.remainingTime === 'number' && draft.remainingTime >= 0) {
+          let rem = draft.remainingTime;
+          if (draft.updatedAt) {
+            const elapsed = Math.floor((Date.now() - new Date(draft.updatedAt).getTime()) / 1000);
+            if (elapsed > 0) {
+              rem = Math.max(0, rem - elapsed);
+            }
+          }
+          initialTimerSec = rem;
         }
       }
     }
@@ -79,9 +94,8 @@
 
     // Khởi động đồng hồ đếm ngược từ TimerModule
     if (global.TimerModule) {
-      const durationSec = 60 * 60; // 60 phút mặc định
       global.TimerModule.start(
-        durationSec,
+        initialTimerSec,
         function onTick(formattedTime, isWarning) {
           if (DOM.timerDisplay) DOM.timerDisplay.textContent = formattedTime;
           if (DOM.timerBox) {
@@ -110,19 +124,49 @@
     const totalQ = quizState.questions.length;
     if (totalQ === 0) return;
 
+    // Đảm bảo chỉ số câu hỏi luôn trong phạm vi hợp lệ
+    if (quizState.currentQuestion < 0) quizState.currentQuestion = 0;
+    if (quizState.currentQuestion >= totalQ) quizState.currentQuestion = totalQ - 1;
+
     const idx = quizState.currentQuestion;
     const qItem = quizState.questions[idx];
 
     // 1. Cập nhật ảnh câu hỏi an toàn
     if (DOM.questionImage) {
-      if (qItem.link_media) {
-        DOM.questionImage.src = qItem.link_media;
-      } else if (qItem.question && qItem.question.startsWith('http')) {
-        DOM.questionImage.src = qItem.question;
+      const checkSafe = (typeof global.isSafeUrl === 'function')
+        ? global.isSafeUrl
+        : (typeof window !== 'undefined' && typeof window.isSafeUrl === 'function' ? window.isSafeUrl : function (url) {
+            if (typeof url !== 'string' || !url.trim()) return false;
+            const lower = url.trim().toLowerCase();
+            return !lower.startsWith('javascript:') && !lower.startsWith('data:') && !lower.startsWith('file:') && !lower.startsWith('vbscript:') && !url.includes('..');
+          });
+
+      let safeSrc = '';
+
+      if (qItem.link_media && checkSafe(qItem.link_media)) {
+        safeSrc = qItem.link_media;
+      } else if (qItem.question && typeof qItem.question === 'string' && checkSafe(qItem.question) && (qItem.question.startsWith('http://') || qItem.question.startsWith('https://'))) {
+        safeSrc = qItem.question;
       } else {
         const rawQId = qItem.question_id || `Q${idx + 1}`;
+        const safeSub = String(quizState.subject || '').replace(/[^a-zA-Z0-9_-]/g, '');
+        const safeExam = String(quizState.examId || '').replace(/[^a-zA-Z0-9_-]/g, '');
         const safeQId = String(rawQId).replace('.webp', '').replace(/[^a-zA-Z0-9_-]/g, '');
-        DOM.questionImage.src = `./data/images/${quizState.subject}/${quizState.examId}/${safeQId}.webp`;
+        const localPath = `./data/images/${safeSub}/${safeExam}/${safeQId}.webp`;
+        if (checkSafe(localPath)) {
+          safeSrc = localPath;
+        }
+      }
+
+      if (safeSrc) {
+        DOM.questionImage.src = safeSrc;
+        DOM.questionImage.style.display = '';
+        DOM.questionImage.onerror = function () {
+          this.style.display = 'none';
+        };
+      } else {
+        DOM.questionImage.src = '';
+        DOM.questionImage.style.display = 'none';
       }
       DOM.questionImage.alt = `Câu hỏi ${idx + 1}`;
     }
@@ -138,7 +182,7 @@
       DOM.flagCheckbox.disabled = quizState.isSubmitted;
     }
 
-    // 4. Trạng thái nút chọn đáp án (A-D)
+    // 4. Trạng thái nút chọn đáp án (A-F)
     const currentAnswerChar = quizState.answers[idx] || null;
     const optButtons = DOM.answerContainer ? DOM.answerContainer.querySelectorAll('.quiz-opt-btn') : [];
 
@@ -212,7 +256,7 @@
    * 5. CHỌN ĐÁP ÁN & ĐÁNH DẤU CÂU HỎI
    */
   function selectAnswer(char) {
-    if (quizState.isSubmitted || !['A', 'B', 'C', 'D'].includes(char)) return;
+    if (quizState.isSubmitted || !['A', 'B', 'C', 'D', 'E', 'F'].includes(char)) return;
 
     const idx = quizState.currentQuestion;
     if (quizState.answers[idx] === char) {
@@ -247,7 +291,7 @@
 
     const totalQ = quizState.questions.length;
     const answeredCount = Object.keys(quizState.answers).length;
-    const unansweredCount = totalQ - answeredCount;
+    const unansweredCount = Math.max(0, totalQ - answeredCount);
 
     if (autoSubmit !== true) {
       let confirmMsg = "Bạn có chắc chắn muốn nộp bài thi?";
@@ -265,17 +309,31 @@
     if (DOM.submitBtn) DOM.submitBtn.style.display = 'none';
     if (DOM.flagCheckbox) DOM.flagCheckbox.disabled = true;
 
-    // Tính điểm chính xác
+    // Tính toán số câu Đúng, Sai, Bỏ trống với kiểm tra bất biến bảo mật
     let correctCount = 0;
+    let wrongCount = 0;
+    let skippedCount = 0;
+
     quizState.questions.forEach((q, i) => {
       const correctStr = String(q.correct_answer || '').toUpperCase().trim();
       const userStr = String(quizState.answers[i] || '').toUpperCase().trim();
-      if (userStr === correctStr && correctStr !== '') {
+      if (!userStr) {
+        skippedCount++;
+      } else if (userStr === correctStr && correctStr !== '') {
         correctCount++;
+      } else {
+        wrongCount++;
       }
     });
 
-    const score = totalQ > 0 ? ((correctCount / totalQ) * 10).toFixed(2) : "0.00";
+    // Đảm bảo tính bất biến toán học tuyệt đối: correct + wrong + skipped === totalQ
+    if (correctCount + wrongCount + skippedCount !== totalQ) {
+      skippedCount = Math.max(0, totalQ - correctCount - wrongCount);
+    }
+
+    const rawScore = totalQ > 0 ? (correctCount / totalQ) * 10 : 0;
+    const scoreNum = Math.min(10, Math.max(0, rawScore));
+    const score = scoreNum.toFixed(2);
 
     // 1. Tính toán thời gian làm bài
     const remSec = global.TimerModule ? global.TimerModule.getRemainingSeconds() : 0;

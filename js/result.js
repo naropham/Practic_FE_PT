@@ -45,9 +45,16 @@
       }
     });
 
-    const scoreNum = totalQuestions > 0 ? (correctCount / totalQuestions) * 10 : 0;
+    // Đảm bảo bất biến toán học: correct + wrong + skipped === totalQuestions
+    if (correctCount + wrongCount + skippedCount !== totalQuestions) {
+      skippedCount = Math.max(0, totalQuestions - correctCount - wrongCount);
+    }
+
+    const rawScore = totalQuestions > 0 ? (correctCount / totalQuestions) * 10 : 0;
+    const scoreNum = Math.min(10, Math.max(0, rawScore));
     const scoreFormatted = scoreNum.toFixed(2);
-    const accuracyRatePct = totalQuestions > 0 ? ((correctCount / totalQuestions) * 100).toFixed(1) : "0.0";
+    const rawAccuracy = totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
+    const accuracyRatePct = Math.min(100, Math.max(0, rawAccuracy)).toFixed(1);
 
     // Tính định dạng thời gian làm bài
     const spentSec = Math.max(0, sessionData.spentSeconds || 0);

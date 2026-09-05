@@ -20,10 +20,13 @@
   };
 
   /**
-   * 1. ĐỌC LỊCH SỬ THI TỪ LOCALSTORAGE AN TOÀN
+   * 1. ĐỌC LỊCH SỬ THI TỪ LOCALSTORAGE AN TOÀN (TẬP TRUNG QUA STORAGE MODULE)
    * @returns {Array<object>}
    */
   function getExamHistory() {
+    if (global.StorageModule && typeof global.StorageModule.getExamHistory === 'function') {
+      return global.StorageModule.getExamHistory();
+    }
     try {
       const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
       if (!raw) return [];

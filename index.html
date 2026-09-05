@@ -5,34 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>App Luyện Đề FE - Màn Hình Làm Bài</title>
 
+    <!-- Content Security Policy (Progressive Hardening) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self' blob:; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';">
+
     <!-- ANTI-FLASH THEME SCRIPT (Ngăn chớp trắng giao diện trước khi nạp Dark Mode) -->
-    <script>
-        (function() {
-            try {
-                var pref = localStorage.getItem('luyenDe_theme_preference') || 'system';
-                var isDark = false;
-                if (pref === 'dark') {
-                    isDark = true;
-                } else if (pref === 'light') {
-                    isDark = false;
-                } else {
-                    isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                }
-                if (isDark) {
-                    document.documentElement.setAttribute('data-theme', 'dark');
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.setAttribute('data-theme', 'light');
-                    document.documentElement.classList.remove('dark');
-                }
-            } catch (e) {}
-        })();
-    </script>
-    <!-- Các thư viện bên thứ 3 an toàn -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./js/anti-flash.js"></script>
+
+    <!-- Các thư viện vendor tự host (Offline-First, Secure) -->
+    <script src="./js/vendor/papaparse.min.js"></script>
+    <script src="./js/vendor/xlsx.full.min.js"></script>
+    <script src="./js/vendor/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="./css/tailwind.min.css">
 
     <!-- Style System & Components CSS -->
     <link rel="stylesheet" href="./css/variables.css">
@@ -49,25 +32,6 @@
 
     <!-- Data bộ đề -->
     <script src="./data/exams.js"></script>
-
-    <style>
-        body {
-            background-color: var(--background);
-            color: var(--text-primary);
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            margin: 0;
-        }
-        .app-main {
-            flex: 1;
-            padding: 1.5rem;
-            max-width: 1280px;
-            width: 100%;
-        }
-        .selected-btn { background-color: var(--primary) !important; color: white; }
-        .correct { background-color: var(--success) !important; color: white; }
-        .wrong { background-color: var(--error) !important; color: white; }
-    </style>
 </head>
 <body>
     <!-- 1. HEADER COMPONENT -->
@@ -113,7 +77,7 @@
             </button>
 
             <button type="button" id="user-avatar-btn" class="user-avatar-btn" aria-label="Tài khoản người dùng" title="Tài khoản">
-                <img src="https://ui-avatars.com/api/?name=User+FE&background=2563eb&color=fff" alt="Avatar" class="user-avatar-img">
+                <img src="./assets/images/default-avatar.svg" alt="Avatar" class="user-avatar-img">
             </button>
         </div>
     </header>

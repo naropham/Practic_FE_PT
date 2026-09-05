@@ -128,11 +128,42 @@
 
     // Ảnh câu hỏi nếu có
     const qObj = item.question || {};
-    if (qObj.link_media || (qObj.question && qObj.question.startsWith('http'))) {
+    const checkSafe = (typeof global.isSafeUrl === 'function')
+      ? global.isSafeUrl
+      : (typeof window !== 'undefined' && typeof window.isSafeUrl === 'function' ? window.isSafeUrl : function (url) {
+          if (typeof url !== 'string' || !url.trim()) return false;
+          const lower = url.trim().toLowerCase();
+          return !lower.startsWith('javascript:') && !lower.startsWith('data:') && !lower.startsWith('file:') && !lower.startsWith('vbscript:') && !url.includes('..');
+        });
+
+    let candidateSrc = '';
+    if (qObj.link_media && checkSafe(qObj.link_media)) {
+      candidateSrc = qObj.link_media;
+    } else if (qObj.question && typeof qObj.question === 'string' && checkSafe(qObj.question) && (qObj.question.startsWith('http://') || qObj.question.startsWith('https://'))) {
+      candidateSrc = qObj.question;
+    } else {
+      const sub = item.subject || qObj.subject || '';
+      const exam = item.examId || qObj.examId || '';
+      const qId = item.qId || qObj.question_id || '';
+      if (sub && exam && qId) {
+        const safeSub = String(sub).replace(/[^a-zA-Z0-9_-]/g, '');
+        const safeExam = String(exam).replace(/[^a-zA-Z0-9_-]/g, '');
+        const safeQId = String(qId).replace('.webp', '').replace(/[^a-zA-Z0-9_-]/g, '');
+        const localPath = `./data/images/${safeSub}/${safeExam}/${safeQId}.webp`;
+        if (checkSafe(localPath)) {
+          candidateSrc = localPath;
+        }
+      }
+    }
+
+    if (candidateSrc) {
       const img = document.createElement('img');
       img.className = 'wrong-question-media';
-      img.src = qObj.link_media || qObj.question;
-      img.alt = `Câu hỏi ${item.qId}`;
+      img.src = candidateSrc;
+      img.alt = `Câu hỏi ${item.qId || ''}`;
+      img.onerror = function () {
+        this.style.display = 'none';
+      };
       cardBody.appendChild(img);
     }
 
@@ -147,13 +178,43 @@
 
     const timeRow = document.createElement('div');
     timeRow.className = 'wrong-meta-item';
-    timeRow.innerHTML = `<span>Lần sai gần nhất:</span> <strong>${item.lastFailedFormatted || 'N/A'}</strong>`;
+    const spanTimeLabel = document.createElement('span');
+    spanTimeLabel.textContent = 'Lần sai gần nhất: ';
+    const strongTimeVal = document.createElement('strong');
+    strongTimeVal.textContent = item.lastFailedFormatted || 'N/A';
+    timeRow.appendChild(spanTimeLabel);
+    timeRow.appendChild(strongTimeVal);
 
     const ansRow = document.createElement('div');
     ansRow.className = 'wrong-meta-item';
-    const userAnsStr = item.userAnswer ? `Lựa chọn: <span class="text-red-600 font-bold">${item.userAnswer}</span>` : '<span class="text-gray-400">Bỏ trống</span>';
-    const correctAnsStr = item.correctAnswer ? `Đáp án đúng: <span class="text-green-600 font-bold">${item.correctAnswer}</span>` : '';
-    ansRow.innerHTML = `<span>${userAnsStr}</span> <span>${correctAnsStr}</span>`;
+
+    const spanUserAns = document.createElement('span');
+    if (item.userAnswer) {
+      spanUserAns.append('Lựa chọn: ');
+      const strongUserAns = document.createElement('span');
+      strongUserAns.className = 'text-red-600 font-bold';
+      strongUserAns.textContent = item.userAnswer;
+      spanUserAns.appendChild(strongUserAns);
+    } else {
+      const spanEmpty = document.createElement('span');
+      spanEmpty.className = 'text-gray-400';
+      spanEmpty.textContent = 'Bỏ trống';
+      spanUserAns.appendChild(spanEmpty);
+    }
+
+    ansRow.appendChild(spanUserAns);
+
+    if (item.correctAnswer) {
+      const spanCorrectAns = document.createElement('span');
+      spanCorrectAns.append('Đáp án đúng: ');
+      const strongCorrectAns = document.createElement('span');
+      strongCorrectAns.className = 'text-green-600 font-bold';
+      strongCorrectAns.textContent = item.correctAnswer;
+      spanCorrectAns.appendChild(strongCorrectAns);
+
+      ansRow.append(' ');
+      ansRow.appendChild(spanCorrectAns);
+    }
 
     metaDiv.appendChild(timeRow);
     metaDiv.appendChild(ansRow);
@@ -163,28 +224,58 @@
     const cardActions = document.createElement('div');
     cardActions.className = 'wrong-card-actions';
 
+    const svgNS = 'http://www.w3.org/2000/svg';
+
     // Nút Ôn từng câu
     const btnPractice = document.createElement('button');
     btnPractice.type = 'button';
     btnPractice.className = 'btn-card-practice';
-    btnPractice.innerHTML = `
-      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-      </svg>
-      <span>Ôn câu này</span>
-    `;
+
+    const svgPractice = document.createElementNS(svgNS, 'svg');
+    svgPractice.setAttribute('width', '14');
+    svgPractice.setAttribute('height', '14');
+    svgPractice.setAttribute('fill', 'none');
+    svgPractice.setAttribute('stroke', 'currentColor');
+    svgPractice.setAttribute('viewBox', '0 0 24 24');
+
+    const pathPractice = document.createElementNS(svgNS, 'path');
+    pathPractice.setAttribute('stroke-linecap', 'round');
+    pathPractice.setAttribute('stroke-linejoin', 'round');
+    pathPractice.setAttribute('stroke-width', '2');
+    pathPractice.setAttribute('d', 'M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z');
+    svgPractice.appendChild(pathPractice);
+
+    const spanPractice = document.createElement('span');
+    spanPractice.textContent = 'Ôn câu này';
+
+    btnPractice.appendChild(svgPractice);
+    btnPractice.appendChild(spanPractice);
     btnPractice.addEventListener('click', () => practiceSingleQuestion(item));
 
     // Nút Xóa câu khỏi danh sách (Không mất lịch sử)
     const btnDelete = document.createElement('button');
     btnDelete.type = 'button';
     btnDelete.className = 'btn-card-delete';
-    btnDelete.innerHTML = `
-      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-      </svg>
-      <span>Xóa khỏi danh sách</span>
-    `;
+
+    const svgDelete = document.createElementNS(svgNS, 'svg');
+    svgDelete.setAttribute('width', '14');
+    svgDelete.setAttribute('height', '14');
+    svgDelete.setAttribute('fill', 'none');
+    svgDelete.setAttribute('stroke', 'currentColor');
+    svgDelete.setAttribute('viewBox', '0 0 24 24');
+
+    const pathDelete = document.createElementNS(svgNS, 'path');
+    pathDelete.setAttribute('stroke-linecap', 'round');
+    pathDelete.setAttribute('stroke-linejoin', 'round');
+    pathDelete.setAttribute('stroke-width', '2');
+    pathDelete.setAttribute('d', 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16');
+    svgDelete.appendChild(pathDelete);
+
+    const spanDelete = document.createElement('span');
+    spanDelete.textContent = 'Xóa khỏi danh sách';
+
+    btnDelete.appendChild(svgDelete);
+    btnDelete.appendChild(spanDelete);
     btnDelete.addEventListener('click', () => deleteWrongQuestion(item.id));
 
     cardActions.appendChild(btnPractice);

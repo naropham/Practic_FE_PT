@@ -244,12 +244,34 @@
 
       const grid = document.createElement('div');
       grid.className = 'history-mobile-grid';
-      grid.innerHTML = `
-        <div>Môn: <strong>${item.subject || 'Khác'}</strong></div>
-        <div>Thời gian: <strong>${item.timeSpentText || 'N/A'}</strong></div>
-        <div>Đúng: <strong class="text-green-600">${correctQ} câu</strong></div>
-        <div>Sai: <strong class="text-red-600">${wrongQ} câu</strong></div>
-      `;
+
+      const divSub = document.createElement('div');
+      divSub.append('Môn: ');
+      const strongSub = document.createElement('strong');
+      strongSub.textContent = item.subject || 'Khác';
+      divSub.appendChild(strongSub);
+
+      const divTime = document.createElement('div');
+      divTime.append('Thời gian: ');
+      const strongTime = document.createElement('strong');
+      strongTime.textContent = item.timeSpentText || 'N/A';
+      divTime.appendChild(strongTime);
+
+      const divCorrect = document.createElement('div');
+      divCorrect.append('Đúng: ');
+      const strongCorrect = document.createElement('strong');
+      strongCorrect.className = 'text-green-600';
+      strongCorrect.textContent = `${correctQ} câu`;
+      divCorrect.appendChild(strongCorrect);
+
+      const divWrong = document.createElement('div');
+      divWrong.append('Sai: ');
+      const strongWrong = document.createElement('strong');
+      strongWrong.className = 'text-red-600';
+      strongWrong.textContent = `${wrongQ} câu`;
+      divWrong.appendChild(strongWrong);
+
+      grid.append(divSub, divTime, divCorrect, divWrong);
 
       const actions = document.createElement('div');
       actions.className = 'history-action-btns';
@@ -349,18 +371,12 @@
   function retryExam(item) {
     if (!item.examId) return;
 
-    // Kích hoạt nạp và bắt đầu đề thi từ hệ thống chính
-    const examSelect = document.getElementById('exam-select');
     if (typeof EXAM_LIST !== 'undefined' && Array.isArray(EXAM_LIST)) {
       const examInfo = EXAM_LIST.find(x => x.id === item.examId);
       if (examInfo) {
-        window.state = window.state || {};
-        window.state.currentExam = examInfo.id;
-        window.state.currentSubject = examInfo.subject || item.subject || "Khác";
-
-        // Tự động load đề thi
+        const subjectCode = examInfo.subject || item.subject || "Khác";
         if (typeof window.loadExam === 'function') {
-          window.loadExam();
+          window.loadExam(examInfo.id, subjectCode);
           window.dispatchEvent(new CustomEvent('page-change', { detail: { page: 'quiz' } }));
         }
       } else {

@@ -25,16 +25,24 @@
    * @returns {boolean}
    */
   function isValidExamId(examId) {
+    if (typeof window !== 'undefined' && typeof window.isValidExamId === 'function') {
+      return window.isValidExamId(examId);
+    }
     if (typeof examId !== 'string' || !examId.trim()) return false;
+    const trimmed = examId.trim();
+    if (trimmed.includes('..') || trimmed.includes('/') || trimmed.includes('\\')) return false;
     if (typeof EXAM_LIST === 'undefined' || !Array.isArray(EXAM_LIST)) return false;
-    return EXAM_LIST.some(item => item && item.id === examId.trim());
+    return EXAM_LIST.some(item => item && item.id === trimmed);
   }
 
   /**
-   * 2. ĐỌC LỊCH SỬ THI TỪ LOCALSTORAGE
+   * 2. ĐỌC LỊCH SỬ THI TỪ LOCALSTORAGE (TẬP TRUNG QUA STORAGE MODULE)
    * @returns {Array<object>}
    */
   function getExamHistory() {
+    if (global.StorageModule && typeof global.StorageModule.getExamHistory === 'function') {
+      return global.StorageModule.getExamHistory();
+    }
     try {
       const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
       if (!raw) return [];

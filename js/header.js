@@ -13,25 +13,35 @@
    * 1. KHỞI TẠO VÀ CHUYỂN ĐỔI THEME (LIGHT / DARK MODE)
    */
   function initTheme() {
-    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-    
-    // Nếu chưa lưu preference, kiểm tra hệ điều hành của người dùng
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setTheme(prefersDark ? 'dark' : 'light');
+    if (window.ThemeModule && typeof window.ThemeModule.applyTheme === 'function') {
+      window.ThemeModule.applyTheme();
+      return;
+    }
+    try {
+      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+      if (savedTheme === 'dark' || savedTheme === 'light') {
+        setTheme(savedTheme);
+      } else {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setTheme(prefersDark ? 'dark' : 'light');
+      }
+    } catch (e) {
+      console.error("Lỗi khởi tạo theme:", e);
     }
   }
 
   function setTheme(theme) {
-    if (theme === 'dark') {
+    const isDark = theme === 'dark';
+    if (isDark) {
       document.documentElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem(THEME_STORAGE_KEY, 'dark');
+      document.documentElement.classList.add('dark');
     } else {
-      document.documentElement.removeAttribute('data-theme');
-      localStorage.setItem(THEME_STORAGE_KEY, 'light');
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.classList.remove('dark');
     }
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, isDark ? 'dark' : 'light');
+    } catch (e) {}
   }
 
   function toggleTheme() {
@@ -39,15 +49,7 @@
       window.ThemeModule.toggleTheme();
     } else {
       const currentTheme = document.documentElement.getAttribute('data-theme');
-      if (currentTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'light');
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem(THEME_STORAGE_KEY, 'light');
-      } else {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        document.documentElement.classList.add('dark');
-        localStorage.setItem(THEME_STORAGE_KEY, 'dark');
-      }
+      setTheme(currentTheme === 'dark' ? 'light' : 'dark');
     }
   }
 

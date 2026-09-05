@@ -10,10 +10,13 @@
   const HISTORY_STORAGE_KEY = 'luyenDe_exam_history';
 
   /**
-   * 1. ĐỌC DỮ LIỆU LỊCH SỬ LÀM BÀI TỪ LOCALSTORAGE
+   * 1. ĐỌC DỮ LIỆU LỊCH SỬ LÀM BÀI TỪ LOCALSTORAGE (TẬP TRUNG QUA STORAGE MODULE)
    * @returns {Array<object>}
    */
   function getExamHistory() {
+    if (global.StorageModule && typeof global.StorageModule.getExamHistory === 'function') {
+      return global.StorageModule.getExamHistory();
+    }
     try {
       const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
       if (!raw) return [];
