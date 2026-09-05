@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Luyện Đề Tối Giản</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./data/exams.js"></script>
+    <style>
+        .selected-btn { background-color: #3b82f6 !important; color: white; }
+        .correct { background-color: #10b981 !important; color: white; }
+        .wrong { background-color: #ef4444 !important; color: white; }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 rounded-md">
+    <div class="bg-white p-6 rounded-md">
+        <div class="flex flex-wrap justify-between items-center mb-6 border-b pb-4 gap-4">
+            <h1 class="text-2xl font-bold text-gray-800">Luyện Đề FE</h1>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <label for="time-input" class="text-xs md:text-base text-gray-600 font-medium whitespace-nowrap">Thời gian (phút):</label>
+                    <input type="number" id="time-input" min="1" placeholder="Ko giới hạn" class="p-2 w-28 border rounded-md outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <select id="exam-select" class="p-2 border rounded-md bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">-- Chọn bộ đề --</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="quiz-container" class="hidden grid grid-cols-1 md:grid-cols-5 gap-6">
+            <div class="space-y-6">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-gray-700">Chọn đáp án (A-F):</h3>
+                        <label class="flex items-center space-x-2 text-yellow-600 font-bold cursor-pointer">
+                            <input type="checkbox" id="flag-checkbox" onchange="toggleFlag()" class="w-5 h-5">
+                            <span>Đánh dấu</span>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2" id="answer-options">
+                        <button onclick="toggleAnswer('A')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">A</button>
+                        <button onclick="toggleAnswer('B')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">B</button>
+                        <button onclick="toggleAnswer('C')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">C</button>
+                        <button onclick="toggleAnswer('D')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">D</button>
+                        <button onclick="toggleAnswer('E')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">E</button>
+                        <button onclick="toggleAnswer('F')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">F</button>
+                    </div>
+                    <div id="question-feedback" class="text-center font-bold p-2 rounded hidden mt-3"></div>
+                </div>
+
+                <div class="space-y-4">
+                    <div id="timer-display" class="hidden text-3xl font-mono font-bold text-red-600 text-center bg-red-50 py-3 rounded border-2 border-red-300"></div>
+                    <button onclick="submitTest()" id="submit-btn" class="w-full py-3 bg-red-600 text-white font-bold rounded shadow-md hover:bg-red-700 uppercase">Nộp bài</button>
+                    <div id="score-board" class="text-center font-bold p-4 rounded hidden shadow mt-4"></div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <h3 class="font-bold mb-2 text-gray-700 text-sm italic">Danh sách câu hỏi:</h3>
+                    <div id="nav-dots" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+            <div class="md:col-span-4 space-y-4">
+                <div class="bg-gray-200 rounded-lg overflow-hidden border flex justify-center">
+                    <img id="question-image" src="" alt="Câu hỏi" class="max-w-full h-auto object-contain">
+                </div>
+                <div class="flex justify-between">
+                    <button onclick="prevQuestion()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Câu trước</button>
+                    <span id="question-index" class="font-medium text-lg text-gray-700">Câu 1</span>
+                    <button onclick="nextQuestion()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Câu tiếp</button>
+                </div>
+            </div>
+        </div>
+        <p class="text-center text-gray-500 text-sm">Last update: <span id="last-update"></span></p>
+    </div>
+
+    <script>
+        document.getElementById('last-update').innerText = new Date(document.lastModified).toLocaleString('vi-VN');
+        let currentExam = "";
+        let currentSubject = "";
+        let questions = [];
+        let currentIndex = 0;
+        let userAnswers = []; // Save answers per question
+        let flaggedQuestions = new Set();
+        let isSubmitted = false;
+        let timerInterval = null;
+        let timeRemaining = 0;
+
+        const examSelect = document.getElementById('exam-select');
+        const quizContainer = document.getElementById('quiz-container');
+        const qImage = document.getElementById('question-image');
+        const qIndexLabel = document.getElementById('question-index');
+        const questionFeedback = document.getElementById('question-feedback');
+        const scoreBoard = document.getElementById('score-board');
+        const navDots = document.getElementById('nav-dots');
+        const submitBtn = document.getElementById('submit-btn');
+        const flagCheckbox = document.getElementById('flag-checkbox');
+
+        // 0. Khởi tạo danh sách bộ đề từ biến EXAM_LIST trong file data/exams.js
+        if (typeof EXAM_LIST !== 'undefined') {
+            const subjects = [...new Set(EXAM_LIST.map(e => e.subject || "Khác"))];
+            subjects.forEach(subject => {
+                const optGroup = document.createElement('optgroup');
+                optGroup.label = subject;
+                const examsInSubject = EXAM_LIST.filter(e => (e.subject || "Khác") === subject);
+                examsInSubject.forEach(exam => {
+                    const opt = document.createElement('option');
+                    opt.value = exam.id;
+                    opt.innerText = exam.name;
+                    optGroup.appendChild(opt);
+                });
+                examSelect.appendChild(optGroup);
+            });
+        }
+
+        // 1. Lắng nghe sự kiện chọn bộ đề
+        examSelect.addEventListener('change', (e) => {
+            const selectedId = e.target.value;
+            if (selectedId) {
+                const examInfo = EXAM_LIST.find(x => x.id === selectedId);
+                currentExam = examInfo.id;
+                currentSubject = examInfo.subject || "Khác";
+                loadExam();
+            } else {
+                quizContainer.classList.add('hidden');
+            }
+        });
+
+        // 2. Hàm tải dữ liệu từ CSV/Excel
+        function loadExam() {
+            const xlsxUrl = `./data/data/${currentSubject}/${currentExam}.xlsx`;
+            const csvUrl = `./data/data/${currentSubject}/${currentExam}.csv`;
+
+            // Thử nạp dữ liệu từ file Excel (.xlsx) trước
+            fetch(xlsxUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error("XLSX not found");
+                    return response.arrayBuffer();
+                })
+                .then(buffer => {
+                    const data = new Uint8Array(buffer);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const firstSheet = workbook.SheetNames[0];
+                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], {defval: ""});
+                    processExamData(jsonData);
+                })
+                .catch(() => {
+                    // Nếu lỗi (không tồn tại file excell), fallback sang nạp file CSV
+                    Papa.parse(csvUrl, {
+                        download: true,
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            processExamData(results.data);
+                        },
+                        error: function(err) {
+                            console.error("Error loading CSV:", err);
+                            alert("Không thể tải file dữ liệu cho bộ đề này (cần file .xlsx hoặc .csv).");
+                        }
+                    });
+                });
+        }
+
+        function processExamData(data) {
+            // Thêm fallback q['question_id.webp'], q['link_media'] hoặc q.question do sự khác biệt giữa các format
+            questions = data.filter(q => q.question_id || q['question_id.webp'] || q['link_media'] || q.question); 
+            currentIndex = 0;
+            userAnswers = questions.map(() => new Set());
+            flaggedQuestions.clear();
+            isSubmitted = false;
+            submitBtn.classList.remove('hidden');
+            scoreBoard.classList.add('hidden');
+            flagCheckbox.disabled = false;
+            quizContainer.classList.remove('hidden');
+            
+            startTimer();
+            renderQuestion();
+            renderNavDots();
+        }
+
+        // 3. Hiển thị câu hỏi hiện tại
+        function renderQuestion() {
+            const q = questions[currentIndex];
+            
+            // Xử lý nạp ảnh từ URL trực tiếp hoặc từ folder local
+            if (q['link_media']) {
+                qImage.src = q['link_media'];
+            } else if (q.question && String(q.question).startsWith('http')) {
+                let imgUrl = String(q.question).trim();
+                qImage.src = imgUrl;
+            } else {
+                const qIdRaw = q.question_id || q['question_id.webp'] || `Q${currentIndex+1}`;
+                const qId = String(qIdRaw).replace('.webp', '');
+                qImage.src = `./data/images/${currentSubject}/${currentExam}/${qId}.webp`;
+            }
+            
+            qIndexLabel.innerText = `Câu ${currentIndex + 1} / ${questions.length}`;
+            
+            flagCheckbox.checked = flaggedQuestions.has(currentIndex);
+            resetUI();
+            
+            const answers = userAnswers[currentIndex];
+            document.querySelectorAll('.opt-btn').forEach(btn => {
+                if (answers.has(btn.innerText)) btn.classList.add('selected-btn');
+                btn.disabled = isSubmitted;
+            });
+            flagCheckbox.disabled = isSubmitted;
+
+            if (isSubmitted) {
+                showFeedbackForCurrentQuestion();
+            }
+
+            // Update dots to show current selection
+            questions.forEach((_, i) => updateNavDot(i));
+        }
+
+        function resetUI() {
+            questionFeedback.classList.add('hidden');
+            document.querySelectorAll('.opt-btn').forEach(btn => {
+                btn.className = 'opt-btn border-2 py-2 rounded font-bold hover:border-blue-500';
+            });
+        }
+
+        function toggleFlag() {
+            if (isSubmitted) return;
+            if (flaggedQuestions.has(currentIndex)) {
+                flaggedQuestions.delete(currentIndex);
+            } else {
+                flaggedQuestions.add(currentIndex);
+            }
+            updateNavDot(currentIndex);
+        }
+
+        // 4. Logic chọn đáp án (Multi-choice)
+        function toggleAnswer(char) {
+            if (isSubmitted) return;
+            const answers = userAnswers[currentIndex];
+            if (answers.has(char)) {
+                answers.delete(char);
+                event.target.classList.remove('selected-btn');
+            } else {
+                answers.add(char);
+                event.target.classList.add('selected-btn');
+            }
+            updateNavDot(currentIndex);
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            const timeInput = document.getElementById('time-input');
+            const timerDisplay = document.getElementById('timer-display');
+            
+            if (timeInput.value && !isNaN(timeInput.value) && parseInt(timeInput.value) > 0) {
+                timeRemaining = parseInt(timeInput.value) * 60;
+                timerDisplay.classList.remove('hidden');
+                updateTimerDisplay();
+                
+                timerInterval = setInterval(() => {
+                    if (isSubmitted) {
+                        clearInterval(timerInterval);
+                        return;
+                    }
+                    timeRemaining--;
+                    updateTimerDisplay();
+                    if (timeRemaining <= 0) {
+                        clearInterval(timerInterval);
+                        alert("Hết thời gian! Hệ thống sẽ tự động nộp bài.");
+                        submitTest(true);
+                    }
+                }, 1000);
+            } else {
+                timerDisplay.classList.add('hidden');
+            }
+        }
+
+        function updateTimerDisplay() {
+            const timerDisplay = document.getElementById('timer-display');
+            const m = Math.floor(timeRemaining / 60);
+            const s = timeRemaining % 60;
+            timerDisplay.innerText = `⏳ ${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            
+            if (timeRemaining <= 60) {
+                timerDisplay.classList.add('animate-pulse');
+            } else {
+                timerDisplay.classList.remove('animate-pulse');
+            }
+        }
+
+        // 5. Nộp bài
+        function submitTest(autoSubmit = false) {
+            if (isSubmitted) return;
+            if (autoSubmit !== true && !confirm("Bạn có chắc chắn muốn nộp bài?")) return;
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                document.getElementById('timer-display').classList.remove('animate-pulse');
+            }
+            isSubmitted = true;
+            submitBtn.classList.add('hidden');
+            flagCheckbox.disabled = true;
+
+            let correctCount = 0;
+            questions.forEach((q, i) => {
+                const correctAns = q.correct_answer || q['correct_answer'] || q['correct_answer'] || q.answer || "";
+                const correctStr = String(correctAns).toUpperCase().split('').sort().join('');
+                const userStr = Array.from(userAnswers[i]).sort().join('');
+                if (userStr === correctStr && correctStr !== "") {
+                    correctCount++;
+                }
+            });
+
+            const score = ((correctCount / questions.length) * 10).toFixed(2);
+            scoreBoard.innerHTML = `ĐIỂM SỐ: <span class="text-3xl text-red-600 block my-2">${score}</span><span class="text-gray-600 text-sm">(${correctCount} / ${questions.length} câu đúng)</span>`;
+            scoreBoard.className = "text-center font-bold p-4 rounded bg-white border-2 border-red-500 mt-4 block shadow-lg bg-green-50";
+            
+            renderQuestion();
+        }
+
+        function showFeedbackForCurrentQuestion() {
+            const q = questions[currentIndex];
+            const correctAns = q.correct_answer || q['correct_answer'] || q['correct_answer'] || q.answer || "";
+            const correctStr = String(correctAns).toUpperCase().split('').sort().join('');
+            const userStr = Array.from(userAnswers[currentIndex]).sort().join('');
+            questionFeedback.classList.remove('hidden');
+            
+            if (userStr === correctStr) {
+                questionFeedback.innerText = "CHÍNH XÁC! 🎉";
+                questionFeedback.className = "text-center font-bold p-2 rounded bg-green-100 text-green-700 mt-3 block";
+            } else {
+                questionFeedback.innerText = `SAI RỒI! Đáp án đúng là: ${correctStr}`;
+                questionFeedback.className = "text-center font-bold p-2 rounded bg-red-100 text-red-700 mt-3 block";
+            }
+        }
+
+        // Điều hướng
+        function nextQuestion() {
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function jumpTo(index) {
+            currentIndex = index;
+            renderQuestion();
+        }
+
+        function updateNavDot(index) {
+            const dot = navDots.children[index];
+            if (!dot) return;
+            
+            // Default styling
+            let classes = "w-8 h-8 text-xs font-bold border rounded flex items-center justify-center ";
+
+            if (isSubmitted) {
+                const q = questions[index];
+                const correctAns = q.correct_answer || q['correct_answer'] || q['correct_answer'] || q.answer || "";
+                const correctStr = String(correctAns).toUpperCase().split('').sort().join('');
+                const userStr = Array.from(userAnswers[index]).sort().join('');
+                if (userStr === correctStr && correctStr !== "") {
+                    classes += "bg-green-500 text-white border-green-600 ";
+                } else {
+                    classes += "bg-red-500 text-white border-red-600 ";
+                }
+            } else {
+                // Not submitted states
+                if (flaggedQuestions.has(index)) {
+                    classes += "bg-yellow-400 text-white border-yellow-500 ";
+                } else if (userAnswers[index].size > 0) {
+                    classes += "bg-blue-500 text-white border-blue-600 ";
+                } else {
+                    classes += "bg-white text-gray-700 hover:bg-gray-200 border-gray-300 ";
+                }
+            }
+
+            if (index === currentIndex) {
+                classes += "ring-4 ring-offset-2 ring-blue-500 ";
+            }
+
+            dot.className = classes;
+        }
+
+        function renderNavDots() {
+            navDots.innerHTML = "";
+            questions.forEach((_, i) => {
+                const btn = document.createElement('button');
+                btn.innerText = i + 1;
+                btn.onclick = () => jumpTo(i);
+                navDots.appendChild(btn);
+            });
+            questions.forEach((_, i) => updateNavDot(i));
+        }
+    </script>
+</body>
+</html>
