@@ -1,0 +1,44 @@
+<!-- ==========================================
+  SUBJECTS COMPONENT HTML
+  Trang danh sách môn học với bộ lọc, tìm kiếm và sắp xếp
+========================================== -->
+<div id="subjects-page-view" class="subjects-page-container">
+    <!-- TOOLBAR: SEARCH, FILTER, SORT -->
+    <div class="subjects-toolbar">
+        <!-- Search box -->
+        <div class="toolbar-search-box">
+            <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="search" id="subject-search-input" class="toolbar-search-input" placeholder="Tìm theo mã môn hoặc tên môn..." aria-label="Tìm kiếm môn học">
+        </div>
+
+        <!-- Controls: Filter & Sort -->
+        <div class="toolbar-controls">
+            <!-- Filter group -->
+            <div class="control-group">
+                <label for="subject-filter-select" class="control-label">Lọc:</label>
+                <select id="subject-filter-select" class="control-select" aria-label="Lọc môn học theo trạng thái">
+                    <option value="all">Tất cả môn học</option>
+                    <option value="practiced">Đã luyện</option>
+                    <option value="unpracticed">Chưa luyện</option>
+                </select>
+            </div>
+
+            <!-- Sort group -->
+            <div class="control-group">
+                <label for="subject-sort-select" class="control-label">Sắp xếp:</label>
+                <select id="subject-sort-select" class="control-select" aria-label="Sắp xếp danh sách môn học">
+                    <option value="name">Tên môn học (A-Z)</option>
+                    <option value="exams-desc">Số bộ đề (Nhiều nhất)</option>
+                    <option value="score-desc">Điểm trung bình (Cao nhất)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUBJECT CARDS GRID -->
+    <div id="subjects-page-grid" class="subjects-grid-full" aria-label="Danh sách các môn học">
+        <!-- Rendered dynamically by DOM API -->
+    </div>
+</div>

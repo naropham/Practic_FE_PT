@@ -1,0 +1,56 @@
+<!-- ==========================================
+  EXAMS COMPONENT HTML
+  Trang danh sách bộ đề theo môn với bộ lọc, tìm kiếm và nút thao tác
+========================================== -->
+<div id="exams-page-view" class="exams-page-container">
+    <!-- SUBJECT BANNER -->
+    <div class="subject-banner">
+        <div class="subject-banner-title">
+            <span id="banner-subject-code" class="subject-banner-code">MAE101</span>
+            <span id="banner-subject-name" class="subject-banner-name">Toán Cao Cấp Cho Kỹ Thuật</span>
+        </div>
+        <div class="control-group">
+            <label for="banner-subject-select" class="control-label">Đổi môn:</label>
+            <select id="banner-subject-select" class="control-select" aria-label="Chọn môn học để xem bộ đề">
+                <option value="ALL">Tất cả môn học</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- TOOLBAR CONTROL -->
+    <div class="exams-toolbar">
+        <!-- Search input -->
+        <div class="exams-search-box">
+            <svg class="exams-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="search" id="exam-search-input" class="exams-search-input" placeholder="Tìm theo tên bộ đề (FE, RE...)..." aria-label="Tìm kiếm bộ đề">
+        </div>
+
+        <!-- Controls: Filter & Sort -->
+        <div class="exams-controls">
+            <div class="control-group">
+                <label for="exam-status-filter" class="control-label">Trạng thái:</label>
+                <select id="exam-status-filter" class="control-select" aria-label="Lọc bộ đề theo trạng thái">
+                    <option value="all">Tất cả bộ đề</option>
+                    <option value="practiced">Đã làm</option>
+                    <option value="unattempted">Chưa làm</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="exam-sort-select" class="control-label">Sắp xếp:</label>
+                <select id="exam-sort-select" class="control-select" aria-label="Sắp xếp bộ đề">
+                    <option value="name">Tên bộ đề</option>
+                    <option value="score-desc">Điểm cao nhất</option>
+                    <option value="attempts-desc">Số lần làm (Nhiều nhất)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXAM CARDS GRID -->
+    <div id="exams-page-grid" class="exams-grid" aria-label="Danh sách các bộ đề">
+        <!-- Rendered dynamically by DOM API -->
+    </div>
+</div>

@@ -1,0 +1,132 @@
+<!-- ==========================================
+  STATISTICS COMPONENT HTML
+  Giao diện Báo cáo Thống Kê Học Tập, Biểu đồ Chart.js & Bảng Xếp Hạng Môn Học
+========================================== -->
+<div id="stats-page-view" class="stats-page-container">
+    <!-- 1. HEADER CARD -->
+    <header class="stats-header-card" aria-label="Thanh công cụ trang thống kê">
+        <div class="stats-header-title">
+            <h1>
+                <svg width="28" height="28" fill="none" stroke="var(--primary)" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                <span>Báo Cáo Thống Kê Học Tập</span>
+            </h1>
+            <p>Phân tích hiệu suất làm bài, xu hướng điểm số và tổng quan năng lực theo môn học.</p>
+        </div>
+    </header>
+
+    <!-- 2. SUMMARY METRICS CARDS -->
+    <section aria-label="Thống kê tổng quan">
+        <div class="stats-summary-grid">
+            <div class="stats-summary-card">
+                <div class="stats-icon-box icon-box-blue">📈</div>
+                <div>
+                    <div id="st-avg-score" class="stats-info-val">0.0</div>
+                    <div class="stats-info-lbl">Điểm trung bình</div>
+                </div>
+            </div>
+            <div class="stats-summary-card">
+                <div class="stats-icon-box icon-box-green">🎯</div>
+                <div>
+                    <div id="st-accuracy-rate" class="stats-info-val">0%</div>
+                    <div class="stats-info-lbl">Tỷ lệ chính xác</div>
+                </div>
+            </div>
+            <div class="stats-summary-card">
+                <div class="stats-icon-box icon-box-purple">📝</div>
+                <div>
+                    <div id="st-total-exams" class="stats-info-val">0</div>
+                    <div class="stats-info-lbl">Tổng số đề đã làm</div>
+                </div>
+            </div>
+            <div class="stats-summary-card">
+                <div class="stats-icon-box icon-box-amber">❓</div>
+                <div>
+                    <div id="st-total-questions" class="stats-info-val">0</div>
+                    <div class="stats-info-lbl">Tổng số câu đã làm</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. CHARTS GRID (Visible when history exists) -->
+    <div id="stats-charts-section" class="stats-charts-grid">
+        <!-- 1. Line chart: Điểm trung bình theo thời gian -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h2 class="chart-card-title">📈 Điểm Số Theo Thời Gian</h2>
+            </div>
+            <div class="chart-container-box">
+                <canvas id="chart-score-over-time"></canvas>
+            </div>
+        </div>
+
+        <!-- 2. Doughnut chart: Tỷ lệ đúng/sai -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h2 class="chart-card-title">🍩 Tỷ Lệ Đúng / Sai</h2>
+            </div>
+            <div class="chart-container-box">
+                <canvas id="chart-right-wrong-ratio"></canvas>
+            </div>
+        </div>
+
+        <!-- 3. Bar chart: Số câu đã làm mỗi ngày -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h2 class="chart-card-title">📅 Số Câu Đã Làm Mỗi Ngày</h2>
+            </div>
+            <div class="chart-container-box">
+                <canvas id="chart-daily-questions"></canvas>
+            </div>
+        </div>
+
+        <!-- 4. Bar chart: Điểm trung bình theo môn -->
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <h2 class="chart-card-title">📚 Điểm Trung Bình Theo Môn</h2>
+            </div>
+            <div class="chart-container-box">
+                <canvas id="chart-score-by-subject"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. TOP RANKINGS (Môn mạnh nhất & Môn cần cải thiện) -->
+    <div id="stats-rankings-section" class="stats-rankings-grid">
+        <!-- Top môn mạnh nhất -->
+        <div class="ranking-card">
+            <div class="ranking-header">
+                <span class="text-2xl">🏆</span>
+                <h2 class="ranking-title">Top Môn Mạnh Nhất</h2>
+            </div>
+            <div id="top-strong-subjects-list" class="ranking-list">
+                <!-- Dynamic ranking items -->
+            </div>
+        </div>
+
+        <!-- Top môn cần cải thiện -->
+        <div class="ranking-card">
+            <div class="ranking-header">
+                <span class="text-2xl">⚡</span>
+                <h2 class="ranking-title">Top Môn Cần Cải Thiện</h2>
+            </div>
+            <div id="top-weak-subjects-list" class="ranking-list">
+                <!-- Dynamic ranking items -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. EMPTY STATE (Visible when no history exists) -->
+    <div id="stats-empty-view" class="stats-empty-card hidden" aria-label="Trạng thái chưa có dữ liệu thi">
+        <div class="stats-empty-icon">📊</div>
+        <h2 class="stats-empty-title">Chưa có dữ liệu thống kê</h2>
+        <p class="stats-empty-desc">Bạn chưa hoàn thành bài thi nào. Hãy luyện tập ít nhất 1 bộ đề để hệ thống tổng hợp báo cáo chi tiết nhé!</p>
+        <div class="mt-3">
+            <button type="button" id="btn-stats-start-exam" class="btn-practice-all" style="background-color: var(--primary);">
+                <span>Bắt đầu luyện đề ngay</span>
+            </button>
+        </div>
+    </div>
+</div>

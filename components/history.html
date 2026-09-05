@@ -1,0 +1,87 @@
+<!-- ==========================================
+  EXAM HISTORY COMPONENT HTML
+  Giao diện Bảng Lịch Sử Làm Bài: Responsive Table / Mobile Card, Tìm kiếm & Phân trang
+========================================== -->
+<div id="history-page-view" class="history-page-container">
+    <!-- 1. TOOLBAR & HEADER -->
+    <header class="history-header-card" aria-label="Thanh công cụ trang lịch sử">
+        <div class="history-title-row">
+            <div>
+                <h1 class="history-title-main">
+                    <svg width="28" height="28" fill="none" stroke="var(--primary)" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>Lịch Sử Làm Bài Thi</span>
+                </h1>
+                <p class="history-title-desc">Theo dõi nhật ký kết quả thi, danh sách câu đúng/sai và làm lại bài thi.</p>
+            </div>
+
+            <div class="history-toolbar-controls">
+                <div class="history-search-box">
+                    <svg class="history-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="search" id="history-search-input" class="history-search-input" placeholder="Tìm bộ đề hoặc tên môn..." aria-label="Tìm kiếm lịch sử bài thi">
+                </div>
+
+                <select id="history-subject-filter" class="history-filter-select" aria-label="Lọc theo môn học">
+                    <option value="ALL">Tất cả môn học</option>
+                </select>
+
+                <select id="history-sort-select" class="history-filter-select" aria-label="Sắp xếp thời gian">
+                    <option value="date-desc">Thời gian (Mới nhất)</option>
+                    <option value="date-asc">Thời gian (Cũ nhất)</option>
+                    <option value="score-desc">Điểm (Cao nhất)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. DESKTOP TABLE VIEW -->
+    <div id="history-table-section" class="history-table-wrapper">
+        <table class="history-table" aria-label="Bảng lịch sử làm bài thi">
+            <thead>
+                <tr>
+                    <th>Ngày làm bài</th>
+                    <th>Môn</th>
+                    <th>Bộ đề</th>
+                    <th>Điểm</th>
+                    <th>Đúng</th>
+                    <th>Sai</th>
+                    <th>Thời gian</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="history-table-body">
+                <!-- Dynamic rows -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 3. MOBILE CARDS VIEW -->
+    <div id="history-cards-section" class="history-cards-wrapper" aria-label="Danh sách lịch sử thi trên di động">
+        <!-- Dynamic mobile cards -->
+    </div>
+
+    <!-- 4. PAGINATION CONTROLS -->
+    <div id="history-pagination-section" class="history-pagination">
+        <div id="history-pagination-info" class="pagination-info">
+            Hiển thị 1 - 10 trên tổng số 0 lượt thi
+        </div>
+        <div id="history-pagination-buttons" class="pagination-buttons">
+            <!-- Dynamic page buttons -->
+        </div>
+    </div>
+
+    <!-- 5. EMPTY STATE -->
+    <div id="history-empty-view" class="history-empty-card hidden" aria-label="Trạng thái chưa có lịch sử thi">
+        <div class="history-empty-icon">📝</div>
+        <h2 class="history-empty-title">Chưa có lịch sử làm bài</h2>
+        <p class="history-empty-desc">Bạn chưa hoàn thành bài thi nào hoặc không tìm thấy kết quả phù hợp với bộ lọc.</p>
+        <div class="mt-2">
+            <button type="button" id="btn-history-start-exam" class="btn-practice-all" style="background-color: var(--primary);">
+                <span>Luyện đề ngay</span>
+            </button>
+        </div>
+    </div>
+</div>

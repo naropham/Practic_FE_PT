@@ -1,0 +1,94 @@
+<!-- ==========================================
+  QUIZ COMPONENT HTML
+  Màn hình làm bài trắc nghiệm chuyên nghiệp, đầy đủ Accessibility & Keyboard Navigation
+========================================== -->
+<div id="quiz-screen-view" class="quiz-screen-container">
+    <!-- 1. QUIZ HEADER BANNER -->
+    <header class="quiz-header" aria-label="Thông tin bài thi và thời gian">
+        <div class="quiz-header-info">
+            <span id="quiz-subject-tag" class="quiz-subject-tag">MÔN HỌC: MAE101</span>
+            <h1 id="quiz-exam-title" class="quiz-exam-title">Đề Thi FA25 FE</h1>
+        </div>
+
+        <div class="quiz-header-actions">
+            <!-- Nút Fullscreen -->
+            <button type="button" id="quiz-fullscreen-btn" class="icon-btn" aria-label="Bật/Tắt chế độ toàn màn hình" title="Toàn màn hình">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                </svg>
+            </button>
+
+            <!-- Đồng hồ đếm ngược -->
+            <div id="quiz-timer-box" class="quiz-timer-box" aria-live="polite">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span id="quiz-timer-display">60:00</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. PROGRESS BAR SECTION -->
+    <section class="quiz-progress-section" aria-label="Tiến độ làm bài">
+        <div class="quiz-progress-labels">
+            <span id="quiz-progress-text">Đã làm: 0 / 50 câu</span>
+            <span id="quiz-progress-percent">0%</span>
+        </div>
+        <div class="quiz-progress-track">
+            <div id="quiz-progress-fill" class="quiz-progress-fill"></div>
+        </div>
+    </section>
+
+    <!-- 3. MAIN QUIZ LAYOUT -->
+    <div class="quiz-main-layout">
+        <!-- LEFT COLUMN: CONTROLS & NAV GRID -->
+        <aside class="quiz-control-card" aria-label="Bảng điều khiển và chọn đáp án">
+            <!-- Nút chọn đáp án (A-D) -->
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="font-bold text-sm" style="color: var(--text-primary);">Chọn đáp án (A - D):</h2>
+                    <label class="flex items-center space-x-2 text-xs font-bold cursor-pointer" style="color: var(--warning);">
+                        <input type="checkbox" id="quiz-flag-checkbox" class="w-4 h-4">
+                        <span>Đánh dấu</span>
+                    </label>
+                </div>
+                <div id="quiz-answer-options" class="answer-grid">
+                    <button type="button" data-answer="A" class="quiz-opt-btn">A</button>
+                    <button type="button" data-answer="B" class="quiz-opt-btn">B</button>
+                    <button type="button" data-answer="C" class="quiz-opt-btn">C</button>
+                    <button type="button" data-answer="D" class="quiz-opt-btn">D</button>
+                </div>
+            </div>
+
+            <!-- Nút Nộp bài -->
+            <div>
+                <button type="button" id="quiz-submit-btn" class="btn-submit-main">Nộp Bài Thi</button>
+            </div>
+
+            <!-- Danh sách nốt câu hỏi (Nav Grid) -->
+            <div class="border-t pt-3" style="border-color: var(--border);">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-bold text-xs italic" style="color: var(--text-secondary);">Danh sách câu hỏi:</h3>
+                </div>
+                <div id="quiz-nav-dots" class="quiz-nav-grid" aria-label="Bảng chuyển nhanh câu hỏi">
+                    <!-- Dynamic Nav Dots -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- RIGHT COLUMN: QUESTION IMAGE & BOTTOM NAV -->
+        <main class="quiz-question-card">
+            <!-- Khung ảnh câu hỏi -->
+            <div class="quiz-image-box">
+                <img id="quiz-question-image" src="" alt="Nội dung câu hỏi" class="quiz-image">
+            </div>
+
+            <!-- Thanh chuyển câu hỏi dưới chân -->
+            <div class="quiz-bottom-nav">
+                <button type="button" id="quiz-prev-btn" class="btn-nav">← Câu trước</button>
+                <span id="quiz-question-index-label" class="font-bold text-base" style="color: var(--text-primary);">Câu 1 / 50</span>
+                <button type="button" id="quiz-next-btn" class="btn-nav">Câu tiếp →</button>
+            </div>
+        </main>
+    </div>
+</div>

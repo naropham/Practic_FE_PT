@@ -1,0 +1,96 @@
+<!-- ==========================================
+  SIDEBAR COMPONENT HTML
+  Cấu trúc Semantic HTML (<nav>, <ul>, <li>, <button>)
+  Đầy đủ thuộc tính Accessibility (aria-label, aria-current)
+========================================== -->
+
+<!-- Backdrop che mờ màn hình khi mở trên Mobile -->
+<div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+
+<!-- Sidebar chính -->
+<aside id="app-sidebar" class="app-sidebar" aria-label="Menu điều hướng ứng dụng">
+    <nav class="w-full">
+        <ul class="sidebar-nav" role="menubar">
+            <!-- 1. Trang chủ -->
+            <li class="nav-item" role="none">
+                <button type="button" class="nav-link active" data-page="home" role="menuitem" aria-label="Trang chủ" aria-current="page">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 00-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <span class="nav-label">Trang chủ</span>
+                </button>
+            </li>
+
+            <!-- 2. Môn học -->
+            <li class="nav-item" role="none">
+                <button type="button" class="nav-link" data-page="subjects" role="menuitem" aria-label="Danh sách Môn học">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    <span class="nav-label">Môn học</span>
+                </button>
+            </li>
+
+            <!-- 3. Luyện đề -->
+            <li class="nav-item" role="none">
+                <button type="button" class="nav-link" data-page="quiz" role="menuitem" aria-label="Luyện đề trắc nghiệm">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                    </svg>
+                    <span class="nav-label">Luyện đề</span>
+                </button>
+            </li>
+
+            <!-- 4. Câu đã đánh dấu -->
+            <li class="nav-item" role="none">
+                <button type="button" class="nav-link" data-page="flagged" role="menuitem" aria-label="Các câu hỏi đã đánh dấu">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                    </svg>
+                    <span class="nav-label">Câu đã đánh dấu</span>
+                </button>
+            </li>
+
+            <!-- 5. Câu sai -->
+            <li class="nav-item" role="none">
+                <button type="button" class="nav-link" data-page="wrong" role="menuitem" aria-label="Danh sách các câu làm sai">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="nav-label">Câu sai</span>
+                </button>
+            </li>
+
+            <!-- 6. Lịch sử làm bài -->
+            <li class="nav-item" role="none">
+                <button type="button" class="nav-link" data-page="history" role="menuitem" aria-label="Lịch sử làm bài thi">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="nav-label">Lịch sử làm bài</span>
+                </button>
+            </li>
+
+            <!-- 7. Thống kê -->
+            <li class="nav-item" role="none">
+                <button type="button" class="nav-link" data-page="stats" role="menuitem" aria-label="Thống kê kết quả học tập">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <span class="nav-label">Thống kê</span>
+                </button>
+            </li>
+
+            <!-- 8. Cài đặt -->
+            <li class="nav-item" role="none">
+                <button type="button" class="nav-link" data-page="settings" role="menuitem" aria-label="Cài đặt hệ thống">
+                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span class="nav-label">Cài đặt</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+</aside>

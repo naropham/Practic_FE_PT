@@ -1,0 +1,260 @@
+/**
+ * APP LUYỆN ĐỀ FE - SUBJECTS PAGE STYLES
+ * Bố cục Trang Môn Học: Toolbar Lọc/Tìm kiếm/Sắp xếp & Grid Thẻ Card Môn Học.
+ * Breakpoints chuẩn: Mobile <= 767px (1 cột) | Tablet 768px-1023px (2 cột) | Desktop >= 1024px (3 cột)
+ */
+
+.subjects-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* TOOLBAR: SEARCH, FILTER, SORT */
+.subjects-toolbar {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.toolbar-search-box {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+}
+
+.toolbar-search-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 1rem 0 2.5rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.toolbar-search-input:focus {
+  border-color: var(--primary);
+  background-color: var(--surface);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.toolbar-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.control-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.control-select {
+  height: 42px;
+  padding: 0 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.control-select:focus {
+  border-color: var(--primary);
+}
+
+/* SUBJECT CARDS GRID */
+.subjects-grid-full {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.subject-full-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.subject-full-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.subject-title-box {
+  margin-bottom: 1rem;
+}
+
+.subject-code-tag {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  border-radius: var(--radius-sm);
+  background-color: var(--primary-light);
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.subject-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.subject-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  float: right;
+}
+
+.status-practiced {
+  background-color: var(--success-light);
+  color: var(--success-text);
+}
+
+.status-unpracticed {
+  background-color: var(--surface-hover);
+  color: var(--text-secondary);
+}
+
+.subject-stats-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0.875rem 0.5rem;
+  background-color: var(--background);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+.stat-item-num {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.stat-item-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* EMPTY & ERROR STATES */
+.subjects-empty-card {
+  grid-column: 1 / -1;
+  background-color: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.subjects-empty-icon {
+  width: 56px;
+  height: 56px;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+.subjects-empty-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.subjects-empty-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 0 1.25rem 0;
+  max-width: 420px;
+}
+
+/* --- DESKTOP BREAKPOINT (>= 1024px) --- */
+@media (min-width: 1024px) {
+  .subjects-grid-full {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* --- TABLET BREAKPOINT (768px - 1023px) --- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .subjects-grid-full {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* --- MOBILE BREAKPOINT (<= 767px) --- */
+@media (max-width: 767px) {
+  .subjects-grid-full {
+    grid-template-columns: 1fr;
+  }
+  .subjects-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .toolbar-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .control-group {
+    justify-content: space-between;
+  }
+}

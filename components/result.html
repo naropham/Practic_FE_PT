@@ -1,0 +1,100 @@
+<!-- ==========================================
+  TEST RESULT COMPONENT HTML
+  Giao diện Kết quả bài thi chuyên nghiệp, bảo mật & trực quan
+========================================== -->
+<div id="test-result-page-view" class="result-page-container">
+    <!-- 1. SCORE HERO CARD -->
+    <section class="result-hero-card" aria-label="Kết quả điểm số">
+        <div class="result-score-circle">
+            <span id="res-score-value" class="result-score-value">0.00</span>
+            <span id="res-score-max" class="result-score-max">/ 10 điểm</span>
+        </div>
+
+        <div id="res-grade-badge" class="result-grade-badge grade-excellent">
+            <span>Rất tốt 👏</span>
+        </div>
+
+        <p id="res-feedback-msg" class="result-feedback-msg">Bạn đã hoàn thành bài thi với kết quả tuyệt vời!</p>
+    </section>
+
+    <!-- 2. VISUAL BREAKDOWN BAR CHART -->
+    <section class="result-chart-card" aria-label="Biểu đồ phân tích câu hỏi">
+        <h2 class="chart-title">Phân Tích Tỷ Lệ Đòn Bẩy Câu Hỏi</h2>
+        <div class="breakdown-bar-track">
+            <div id="res-seg-correct" class="segment-correct" style="width: 0%;" title="Số câu đúng"></div>
+            <div id="res-seg-wrong" class="segment-wrong" style="width: 0%;" title="Số câu sai"></div>
+            <div id="res-seg-skipped" class="segment-skipped" style="width: 0%;" title="Số câu bỏ trống"></div>
+        </div>
+        <div class="chart-legend">
+            <div class="legend-item">
+                <span class="legend-dot dot-correct"></span>
+                <span id="legend-correct-text">Đúng: 0</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-dot dot-wrong"></span>
+                <span id="legend-wrong-text">Sai: 0</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-dot dot-skipped"></span>
+                <span id="legend-skipped-text">Bỏ trống: 0</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. METRICS GRID -->
+    <section aria-label="Chi tiết thông số bài làm">
+        <div class="result-metrics-grid">
+            <div class="result-metric-card">
+                <div id="res-correct-count" class="metric-card-val text-green-600">0</div>
+                <div class="metric-card-lbl">Số câu đúng</div>
+            </div>
+            <div class="result-metric-card">
+                <div id="res-wrong-count" class="metric-card-val text-red-600">0</div>
+                <div class="metric-card-lbl">Số câu sai</div>
+            </div>
+            <div class="result-metric-card">
+                <div id="res-skipped-count" class="metric-card-val text-gray-500">0</div>
+                <div class="metric-card-lbl">Số câu bỏ trống</div>
+            </div>
+            <div class="result-metric-card">
+                <div id="res-accuracy-rate" class="metric-card-val text-blue-600">0%</div>
+                <div class="metric-card-lbl">Tỷ lệ chính xác</div>
+            </div>
+            <div class="result-metric-card">
+                <div id="res-time-spent" class="metric-card-val text-purple-600">00:00</div>
+                <div class="metric-card-lbl">Thời gian làm bài</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. ACTIONS BAR -->
+    <section aria-label="Thao tác kết quả">
+        <div class="result-actions-grid">
+            <button type="button" id="btn-res-review" class="btn-result-action btn-action-secondary">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                <span>Xem lại bài</span>
+            </button>
+            <button type="button" id="btn-res-retry" class="btn-result-action btn-action-primary">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <span>Làm lại đề này</span>
+            </button>
+            <button type="button" id="btn-res-review-wrong" class="btn-result-action btn-action-secondary">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <span>Ôn câu sai</span>
+            </button>
+            <button type="button" id="btn-res-home" class="btn-result-action btn-action-secondary">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 00-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                <span>Về trang chủ</span>
+            </button>
+        </div>
+    </section>
+</div>

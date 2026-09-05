@@ -1,0 +1,262 @@
+/**
+ * APP LUYỆN ĐỀ FE - EXAM SETS SELECTION PAGE STYLES
+ * Bố cục Trang chọn bộ đề theo môn: Toolbar, Exam Cards Grid, Badges & Buttons.
+ * Breakpoints chuẩn: Mobile <= 767px (1 cột) | Tablet 768px-1023px (2 cột) | Desktop >= 1024px (3 cột)
+ */
+
+.exams-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* HEADER BANNER MÔN HỌC */
+.subject-banner {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.subject-banner-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.subject-banner-code {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.subject-banner-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* TOOLBAR CONTROL */
+.exams-toolbar {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.exams-search-box {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+}
+
+.exams-search-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 1rem 0 2.5rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.exams-search-input:focus {
+  border-color: var(--primary);
+  background-color: var(--surface);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.exams-search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.exams-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* EXAM CARDS GRID */
+.exams-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.exam-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.exam-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+
+.exam-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+}
+
+.exam-card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.exam-status-badge {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-passed { background-color: var(--success-light); color: var(--success-text); }
+.badge-failed { background-color: var(--error-light); color: var(--error-text); }
+.badge-unattempted { background-color: var(--surface-hover); color: var(--text-secondary); }
+
+.exam-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: var(--background);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.exam-scores-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: var(--background);
+  border-radius: var(--radius-md);
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+.metric-val-bold {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.metric-lbl-sm {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.exam-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-exam-primary {
+  flex: 1;
+  min-height: 44px;
+  padding: 0.75rem;
+  background-color: var(--primary);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-align: center;
+}
+
+.btn-exam-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-exam-secondary {
+  padding: 0.75rem 1rem;
+  min-height: 44px;
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  text-align: center;
+}
+
+.btn-exam-secondary:hover {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* --- DESKTOP BREAKPOINT (>= 1024px) --- */
+@media (min-width: 1024px) {
+  .exams-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* --- TABLET BREAKPOINT (768px - 1023px) --- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .exams-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* --- MOBILE BREAKPOINT (<= 767px) --- */
+@media (max-width: 767px) {
+  .exams-grid {
+    grid-template-columns: 1fr;
+  }
+  .subject-banner, .exams-toolbar, .exams-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btn-exam-primary, .btn-exam-secondary {
+    min-height: 44px;
+  }
+}

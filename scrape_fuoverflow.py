@@ -124,8 +124,8 @@ def scrape_fuoverflow_thread(thread_url, subject, exam_id):
         print("=> Vui lòng ĐÓNG EXCEL rồi chạy lại lệnh `python scrape_fuoverflow.py`!")
 
 if __name__ == "__main__":
-    THREAD_URL = "https://fuoverflow.com/threads/mae101-fa25-fe.5475/"
+    THREAD_URL = "https://fuoverflow.com/threads/mae101-su26-re.7212/"
     SUBJECT = "MAE101"
-    EXAM_ID = "MAE101_FA25_FE"
+    EXAM_ID = "MAE101_SU26_RE"
     
     scrape_fuoverflow_thread(THREAD_URL, SUBJECT, EXAM_ID)
