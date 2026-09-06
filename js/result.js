@@ -152,8 +152,6 @@
   function bindEventListeners() {
     const btnReview = document.getElementById('btn-res-review');
     const btnRetry = document.getElementById('btn-res-retry');
-    const btnReviewWrong = document.getElementById('btn-res-review-wrong');
-    const btnHome = document.getElementById('btn-res-home');
 
     // Nút Xem lại bài
     if (btnReview) {
@@ -174,41 +172,6 @@
           );
           window.dispatchEvent(new CustomEvent('page-change', { detail: { page: 'quiz' } }));
         }
-      });
-    }
-
-    // Nút Ôn câu sai
-    if (btnReviewWrong) {
-      btnReviewWrong.addEventListener('click', () => {
-        if (!currentResultSession || !Array.isArray(currentResultSession.questions)) return;
-
-        const wrongQuestions = currentResultSession.questions.filter((q, i) => {
-          const correctStr = String(q.correct_answer || '').toUpperCase().trim();
-          const userStr = String(currentResultSession.userAnswers[i] || '').toUpperCase().trim();
-          return userStr !== correctStr;
-        });
-
-        if (wrongQuestions.length === 0) {
-          alert("Tuyệt vời! Bạn không làm sai câu nào trong bài thi này 🎉");
-          return;
-        }
-
-        if (window.QuizEngine) {
-          window.QuizEngine.startQuiz(
-            currentResultSession.examId,
-            currentResultSession.subject,
-            `${currentResultSession.examName} (Ôn câu sai - ${wrongQuestions.length} câu)`,
-            wrongQuestions
-          );
-          window.dispatchEvent(new CustomEvent('page-change', { detail: { page: 'quiz' } }));
-        }
-      });
-    }
-
-    // Nút Về trang chủ
-    if (btnHome) {
-      btnHome.addEventListener('click', () => {
-        window.dispatchEvent(new CustomEvent('page-change', { detail: { page: 'home' } }));
       });
     }
   }

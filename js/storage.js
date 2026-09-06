@@ -287,6 +287,46 @@
     },
 
     /**
+     * Xóa 1 bản ghi lịch sử làm bài theo dateKey.
+     * @param {string} dateKey
+     * @returns {boolean}
+     */
+    deleteExamHistoryItem: function (dateKey) {
+      if (!dateKey || typeof dateKey !== 'string') return false;
+      try {
+        const history = this.getExamHistory();
+        const initialLen = history.length;
+        const filtered = history.filter(item => item.date !== dateKey);
+
+        if (filtered.length === initialLen) {
+          return false;
+        }
+
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(filtered));
+        window.dispatchEvent(new CustomEvent('exam-submitted'));
+        return true;
+      } catch (err) {
+        console.error("Lỗi xóa bản ghi lịch sử làm bài:", err);
+        return false;
+      }
+    },
+
+    /**
+     * Xóa toàn bộ lịch sử làm bài thi.
+     * @returns {boolean}
+     */
+    clearAllExamHistory: function () {
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify([]));
+        window.dispatchEvent(new CustomEvent('exam-submitted'));
+        return true;
+      } catch (err) {
+        console.error("Lỗi xóa toàn bộ lịch sử làm bài:", err);
+        return false;
+      }
+    },
+
+    /**
      * Lấy danh sách toàn bộ các câu làm sai đã qua kiểm duyệt an toàn.
      * @returns {Array<object>}
      */

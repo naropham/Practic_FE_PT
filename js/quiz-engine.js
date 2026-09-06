@@ -60,8 +60,13 @@
     quizState.questions = validQuestionsArray;
     quizState.currentQuestion = 0;
     quizState.answers = {};
-    quizState.markedQuestions.clear();
     quizState.isSubmitted = false;
+
+    // Reset hiển thị nút Nộp Bài Thi và trạng thái Checkbox đánh dấu
+    const submitBtnEl = DOM.submitBtn || document.getElementById('quiz-submit-btn');
+    if (submitBtnEl) submitBtnEl.style.display = '';
+    const flagCheckboxEl = DOM.flagCheckbox || document.getElementById('quiz-flag-checkbox');
+    if (flagCheckboxEl) flagCheckboxEl.disabled = false;
 
     // Xác định thời lượng làm bài thực tế (BUG-08)
     let totalExamTime = 3600;
@@ -133,6 +138,11 @@
   function renderQuizUI() {
     const totalQ = quizState.questions.length;
     if (totalQ === 0) return;
+
+    const submitBtnEl = DOM.submitBtn || document.getElementById('quiz-submit-btn');
+    if (submitBtnEl) {
+      submitBtnEl.style.display = quizState.isSubmitted ? 'none' : '';
+    }
 
     // Đảm bảo chỉ số câu hỏi luôn trong phạm vi hợp lệ
     if (quizState.currentQuestion < 0) quizState.currentQuestion = 0;

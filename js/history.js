@@ -188,8 +188,40 @@
       btnRetry.textContent = 'Làm lại';
       btnRetry.addEventListener('click', () => retryExam(item));
 
+      const btnDelete = document.createElement('button');
+      btnDelete.type = 'button';
+      btnDelete.className = 'btn-history-delete';
+      btnDelete.title = 'Xóa lượt thi này';
+      btnDelete.setAttribute('aria-label', 'Xóa lượt thi này');
+
+      const svgTrash = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svgTrash.setAttribute('width', '16');
+      svgTrash.setAttribute('height', '16');
+      svgTrash.setAttribute('fill', 'none');
+      svgTrash.setAttribute('stroke', 'currentColor');
+      svgTrash.setAttribute('viewBox', '0 0 24 24');
+
+      const pathTrash = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      pathTrash.setAttribute('stroke-linecap', 'round');
+      pathTrash.setAttribute('stroke-linejoin', 'round');
+      pathTrash.setAttribute('stroke-width', '2');
+      pathTrash.setAttribute('d', 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16');
+      svgTrash.appendChild(pathTrash);
+      btnDelete.appendChild(svgTrash);
+
+      btnDelete.addEventListener('click', () => {
+        const examName = item.examName || item.examId || 'Bộ đề';
+        const dateFormatted = item.dateFormatted || item.date || 'N/A';
+        const confirmed = window.confirm(`Bạn có chắc muốn xóa lượt thi "${examName}" ngày ${dateFormatted} không?\nHành động này không thể hoàn tác.`);
+        if (confirmed && global.StorageModule) {
+          global.StorageModule.deleteExamHistoryItem(item.date);
+          updatePage();
+        }
+      });
+
       actionBox.appendChild(btnView);
       actionBox.appendChild(btnRetry);
+      actionBox.appendChild(btnDelete);
       tdActions.appendChild(actionBox);
 
       tr.appendChild(tdDate);
@@ -293,8 +325,40 @@
       btnRetry.textContent = 'Làm lại';
       btnRetry.addEventListener('click', () => retryExam(item));
 
+      const btnDelete = document.createElement('button');
+      btnDelete.type = 'button';
+      btnDelete.className = 'btn-history-delete';
+      btnDelete.title = 'Xóa lượt thi này';
+      btnDelete.setAttribute('aria-label', 'Xóa lượt thi này');
+
+      const svgTrashMob = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svgTrashMob.setAttribute('width', '16');
+      svgTrashMob.setAttribute('height', '16');
+      svgTrashMob.setAttribute('fill', 'none');
+      svgTrashMob.setAttribute('stroke', 'currentColor');
+      svgTrashMob.setAttribute('viewBox', '0 0 24 24');
+
+      const pathTrashMob = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      pathTrashMob.setAttribute('stroke-linecap', 'round');
+      pathTrashMob.setAttribute('stroke-linejoin', 'round');
+      pathTrashMob.setAttribute('stroke-width', '2');
+      pathTrashMob.setAttribute('d', 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16');
+      svgTrashMob.appendChild(pathTrashMob);
+      btnDelete.appendChild(svgTrashMob);
+
+      btnDelete.addEventListener('click', () => {
+        const examName = item.examName || item.examId || 'Bộ đề';
+        const dateFormatted = item.dateFormatted || item.date || 'N/A';
+        const confirmed = window.confirm(`Bạn có chắc muốn xóa lượt thi "${examName}" ngày ${dateFormatted} không?\nHành động này không thể hoàn tác.`);
+        if (confirmed && global.StorageModule) {
+          global.StorageModule.deleteExamHistoryItem(item.date);
+          updatePage();
+        }
+      });
+
       actions.appendChild(btnView);
       actions.appendChild(btnRetry);
+      actions.appendChild(btnDelete);
 
       card.appendChild(header);
       card.appendChild(grid);
@@ -539,6 +603,22 @@
         currentSort = e.target.value;
         currentPage = 1;
         updatePage();
+      });
+    }
+
+    const btnClearAll = document.getElementById('btn-history-clear-all');
+    if (btnClearAll) {
+      btnClearAll.addEventListener('click', () => {
+        const historyList = global.StorageModule ? global.StorageModule.getExamHistory() : [];
+        if (historyList.length === 0) {
+          alert('Không có lịch sử làm bài để xóa.');
+          return;
+        }
+        const confirmed = window.confirm(`XÓA TOÀN BỘ lịch sử làm bài?\nToàn bộ ${historyList.length} lượt thi đã lưu sẽ bị mất vĩnh viễn và không thể khôi phục.`);
+        if (confirmed && global.StorageModule) {
+          global.StorageModule.clearAllExamHistory();
+          updatePage();
+        }
       });
     }
 

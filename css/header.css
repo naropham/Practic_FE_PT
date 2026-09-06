@@ -195,6 +195,31 @@
   border-radius: 50%;
 }
 
+.lang-toggle-btn {
+  width: auto;
+  min-width: 48px;
+  height: 38px;
+  padding: 0 10px;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.lang-toggle-btn:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.lang-label {
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
 .theme-toggle-btn .sun-icon {
   display: block;
 }

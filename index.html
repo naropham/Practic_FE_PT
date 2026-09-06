@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="./css/header.css">
     <link rel="stylesheet" href="./css/sidebar.css">
     <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="./css/hero-background.css">
     <link rel="stylesheet" href="./css/subjects.css">
     <link rel="stylesheet" href="./css/exams.css">
     <link rel="stylesheet" href="./css/quiz.css">
@@ -44,7 +45,6 @@
             <nav id="header-page-menu" class="header-page-menu hidden" aria-label="Danh sách trang">
                 <button type="button" data-header-page="home">🏠 <span>Trang chủ</span></button>
                 <button type="button" data-header-page="subjects">📚 <span>Môn học</span></button>
-                <button type="button" data-header-page="exams">📝 <span>Luyện đề</span></button>
                 <button type="button" data-header-page="history">🕒 <span>Lịch sử làm bài</span></button>
                 <button type="button" data-header-page="stats">📊 <span>Thống kê</span></button>
             </nav>
@@ -52,6 +52,15 @@
         </div>
 
         <div class="header-right">
+            <button type="button" id="lang-toggle-btn" class="icon-btn lang-toggle-btn" aria-label="Chuyển đổi ngôn ngữ Anh / Việt" title="Đổi ngôn ngữ (VI / EN)">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.6 9h16.8M3.6 15h16.8"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.5 3a17 17 0 000 18M12.5 3a17 17 0 010 18"></path>
+                </svg>
+                <span id="lang-toggle-label" class="lang-label">VI</span>
+            </button>
+
             <button type="button" id="theme-toggle-btn" class="icon-btn theme-toggle-btn" aria-label="Chuyển đổi giao diện Sáng / Tối" title="Đổi giao diện Sáng/Tối">
                 <svg class="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
@@ -127,17 +136,7 @@
             <!-- 1. DASHBOARD VIEW -->
             <div id="dashboard-view" class="dashboard-container">
                 <section class="study-hero" aria-label="Không gian học tập">
-                    <div class="study-skyline" aria-hidden="true">
-                        <span class="study-cloud cloud-one"></span>
-                        <span class="study-cloud cloud-two"></span>
-                        <span class="study-tree tree-left">🌳</span>
-                        <span class="study-tree tree-right">🌳</span>
-                        <span class="study-bird bird-one">⌁</span>
-                        <span class="study-bird bird-two">⌁</span>
-                        <span class="study-bus">🚌</span>
-                        <span class="study-duck duck-one">🦆</span>
-                        <span class="study-duck duck-two">🦆</span>
-                    </div>
+                    <div id="study-skyline" class="study-skyline" aria-hidden="true"></div>
                     <div class="study-hero-copy">
                         <span class="study-eyebrow">Space to learn in FPT</span>
                         <h1>What do you want to learn today ?</h1>
@@ -404,33 +403,7 @@
                     </div>
                 </section>
 
-                <!-- 3. METRICS GRID -->
-                <section aria-label="Chi tiết thông số bài làm">
-                    <div class="result-metrics-grid">
-                        <div class="result-metric-card">
-                            <div id="res-correct-count" class="metric-card-val text-green-600">0</div>
-                            <div class="metric-card-lbl">Số câu đúng</div>
-                        </div>
-                        <div class="result-metric-card">
-                            <div id="res-wrong-count" class="metric-card-val text-red-600">0</div>
-                            <div class="metric-card-lbl">Số câu sai</div>
-                        </div>
-                        <div class="result-metric-card">
-                            <div id="res-skipped-count" class="metric-card-val text-gray-500">0</div>
-                            <div class="metric-card-lbl">Số câu bỏ trống</div>
-                        </div>
-                        <div class="result-metric-card">
-                            <div id="res-accuracy-rate" class="metric-card-val text-blue-600">0%</div>
-                            <div class="metric-card-lbl">Tỷ lệ chính xác</div>
-                        </div>
-                        <div class="result-metric-card">
-                            <div id="res-time-spent" class="metric-card-val text-purple-600">00:00</div>
-                            <div class="metric-card-lbl">Thời gian làm bài</div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 4. ACTIONS BAR -->
+                <!-- 3. ACTIONS BAR -->
                 <section aria-label="Thao tác kết quả">
                     <div class="result-actions-grid">
                         <button type="button" id="btn-res-review" class="btn-result-action btn-action-secondary">
@@ -445,18 +418,6 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                             </svg>
                             <span>Làm lại</span>
-                        </button>
-                        <button type="button" id="btn-res-review-wrong" class="btn-result-action btn-action-secondary">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                            <span>Ôn câu sai</span>
-                        </button>
-                        <button type="button" id="btn-res-home" class="btn-result-action btn-action-secondary">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 00-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                            </svg>
-                            <span>Về trang chủ</span>
                         </button>
                     </div>
                 </section>
@@ -522,7 +483,6 @@
                             </svg>
                             <span>Báo Cáo Thống Kê Học Tập</span>
                         </h1>
-                        <p>Phân tích hiệu suất làm bài, xu hướng điểm số và tổng quan năng lực theo môn học.</p>
                     </div>
                 </header>
 
@@ -653,7 +613,6 @@
                                 </svg>
                                 <span>Lịch Sử Làm Bài Thi</span>
                             </h1>
-                            <p class="history-title-desc">Theo dõi nhật ký kết quả thi, danh sách câu đúng/sai và làm lại bài thi.</p>
                         </div>
 
                         <div class="history-toolbar-controls">
@@ -673,6 +632,10 @@
                                 <option value="date-asc">Thời gian (Cũ nhất)</option>
                                 <option value="score-desc">Điểm (Cao nhất)</option>
                             </select>
+
+                            <button type="button" id="btn-history-clear-all" class="btn-history-clear-all">
+                                Xóa tất cả lịch sử
+                            </button>
                         </div>
                     </div>
                 </header>
@@ -717,9 +680,7 @@
 
                 <!-- 5. PAGINATION CONTROLS -->
                 <div id="history-pagination-section" class="history-pagination">
-                    <div id="history-pagination-info" class="pagination-info">
-                        Hiển thị 1 - 10 trên tổng số 0 lượt thi
-                    </div>
+
                     <div id="history-pagination-buttons" class="pagination-buttons">
                         <!-- Dynamic page buttons -->
                     </div>

@@ -288,17 +288,54 @@
   }
 
   /**
-   * 5. KHỞI TẠO DASHBOARD DỮ LIỆU ĐỘNG
+   * 5. HIỆU ỨNG ICON NỔI TRÊN BACKGROUND (FLOATING ICONS)
+   */
+  function initFloatingIcons() {
+    const container = document.getElementById('study-skyline') || document.querySelector('.study-hero');
+    if (!container || window._floatingIconsInterval) return;
+
+    const icons = ['📚', '✏️', '📝', '🎓', '💡', '✅'];
+    function spawnIcon() {
+      const targetContainer = document.getElementById('study-skyline') || document.querySelector('.study-hero');
+      if (!targetContainer) return;
+      const el = document.createElement('span');
+      el.className = 'icon-float';
+      el.textContent = icons[Math.floor(Math.random() * icons.length)];
+      el.style.left = (Math.random() * 90 + 5) + '%';
+      el.style.animationDuration = (6 + Math.random() * 5) + 's';
+      targetContainer.appendChild(el);
+      setTimeout(() => el.remove(), 12000);
+    }
+
+    spawnIcon();
+    spawnIcon();
+
+    window._floatingIconsInterval = setInterval(spawnIcon, 700);
+  }
+
+  /**
+   * 6. KHỞI TẠO DASHBOARD DỮ LIỆU ĐỘNG
    */
   function initDashboard() {
     const history = getExamHistory();
     renderStatistics(history);
     renderSubjectCards(history);
     renderRecentExams(history);
+    initFloatingIcons();
   }
 
   document.addEventListener('DOMContentLoaded', initDashboard);
 
-  // Lắng nghe nếu có bài thi mới được nộp để làm mới Dashboard
+  // Lắng nghe các sự kiện cập nhật Dashboard & chuyển trang
   window.addEventListener('exam-submitted', initDashboard);
+  window.addEventListener('page-rendered', (e) => {
+    if (e.detail && e.detail.page === 'home') {
+      initDashboard();
+    }
+  });
+
+  // Chạy ngay nếu DOM đã nạp xong trước đó
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    initDashboard();
+  }
 })(typeof window !== 'undefined' ? window : this);

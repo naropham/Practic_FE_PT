@@ -6,8 +6,9 @@
 (function () {
   'use strict';
 
-  // KEY LƯU THEME TRONG LOCALSTORAGE (Không chứa dữ liệu nhạy cảm)
+  // KEY LƯU THEME VÀ LANG TRONG LOCALSTORAGE
   const THEME_STORAGE_KEY = 'luyenDe_theme_preference';
+  const LANG_STORAGE_KEY = 'luyenDe_lang_preference';
 
   /**
    * 1. KHỞI TẠO VÀ CHUYỂN ĐỔI THEME (LIGHT / DARK MODE)
@@ -54,16 +55,100 @@
   }
 
   /**
-   * 2. RÀNG BUỘC SỰ KIỆN AN TOÀN KHI DOM ĐÃ SẴN SÀNG
+   * 2. KHỞI TẠO VÀ CHUYỂN ĐỔI NGÔN NGỮ (VI / EN)
+   */
+  function initLanguage() {
+    try {
+      const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
+      const initialLang = (savedLang === 'en' || savedLang === 'vi') ? savedLang : 'vi';
+      setLanguage(initialLang);
+    } catch (e) {
+      setLanguage('vi');
+    }
+  }
+
+  function setLanguage(lang) {
+    const validLang = lang === 'en' ? 'en' : 'vi';
+    document.documentElement.setAttribute('lang', validLang);
+    try {
+      localStorage.setItem(LANG_STORAGE_KEY, validLang);
+    } catch (e) {}
+
+    const langLabel = document.getElementById('lang-toggle-label');
+    if (langLabel) {
+      langLabel.textContent = validLang.toUpperCase();
+    }
+
+    const langBtn = document.getElementById('lang-toggle-btn');
+    if (langBtn) {
+      langBtn.setAttribute('title', validLang === 'vi' ? 'Đổi ngôn ngữ (VI / EN)' : 'Switch Language (EN / VI)');
+      langBtn.setAttribute('aria-label', validLang === 'vi' ? 'Chuyển đổi ngôn ngữ Anh / Việt' : 'Switch English / Vietnamese Language');
+    }
+
+    applyTranslations(validLang);
+    window.dispatchEvent(new CustomEvent('language-change', { detail: { lang: validLang } }));
+  }
+
+  function toggleLanguage() {
+    const currentLang = document.documentElement.getAttribute('lang') || 'vi';
+    setLanguage(currentLang === 'vi' ? 'en' : 'vi');
+  }
+
+  function applyTranslations(lang) {
+    const translations = {
+      vi: {
+        home: "Trang chủ",
+        subjects: "Môn học",
+        history: "Lịch sử làm bài",
+        stats: "Thống kê"
+      },
+      en: {
+        home: "Home",
+        subjects: "Subjects",
+        history: "History",
+        stats: "Statistics"
+      }
+    };
+
+    const dict = translations[lang] || translations.vi;
+
+    // Cập nhật menu popup trên Header
+    document.querySelectorAll('[data-header-page]').forEach(btn => {
+      const page = btn.getAttribute('data-header-page');
+      const span = btn.querySelector('span');
+      if (span && dict[page]) {
+        span.textContent = dict[page];
+      }
+    });
+
+    // Cập nhật Sidebar navigation
+    document.querySelectorAll('[data-page]').forEach(btn => {
+      const page = btn.getAttribute('data-page');
+      const span = btn.querySelector('.nav-label');
+      if (span && dict[page]) {
+        span.textContent = dict[page];
+      }
+    });
+  }
+
+  /**
+   * 3. RÀNG BUỘC SỰ KIỆN AN TOÀN KHI DOM ĐÃ SẴN SÀNG
    */
   document.addEventListener('DOMContentLoaded', () => {
-    // Khởi tạo Theme ban đầu
+    // Khởi tạo Theme và Ngôn ngữ ban đầu
     initTheme();
+    initLanguage();
 
+    const langToggleBtn = document.getElementById('lang-toggle-btn');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const avatarBtn = document.getElementById('user-avatar-btn');
     const logoBtn = document.getElementById('header-logo');
     const pageMenu = document.getElementById('header-page-menu');
+
+    // Nút Bật/Tắt Chuyển đổi ngôn ngữ VI / EN
+    if (langToggleBtn) {
+      langToggleBtn.addEventListener('click', toggleLanguage);
+    }
 
     // Nút Bật/Tắt Dark Mode
     if (themeToggleBtn) {
@@ -73,7 +158,7 @@
     // Nút Avatar Người Dùng
     if (avatarBtn) {
       avatarBtn.addEventListener('click', () => {
-        alert("Trang cá nhân & Cài đặt đang được phát triển!");
+        alert("Trang cá nhân đang được phát triển!");
       });
     }
 
