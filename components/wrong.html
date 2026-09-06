@@ -1,0 +1,51 @@
+<!-- ==========================================
+  WRONG QUESTIONS COMPONENT HTML
+  Giao diện Trang "Câu sai của tôi", Lọc môn học, Luyện câu sai & Empty state
+========================================== -->
+<div id="wrong-questions-page-view" class="wrong-page-container">
+    <!-- 1. TOOLBAR & HEADER -->
+    <header class="wrong-page-header" aria-label="Thanh công cụ trang câu sai">
+        <div class="wrong-header-title">
+            <h1 class="wrong-title-main">
+                <svg width="28" height="28" fill="none" stroke="var(--error)" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>Câu Sai Của Tôi</span>
+            </h1>
+            <p class="wrong-title-desc">Danh sách toàn bộ các câu hỏi bạn từng trả lời sai trong lịch sử làm bài thi.</p>
+        </div>
+
+        <div class="wrong-header-actions">
+            <div class="wrong-filter-group">
+                <label for="wrong-subject-filter" class="wrong-filter-label">Môn học:</label>
+                <select id="wrong-subject-filter" class="wrong-filter-select" aria-label="Lọc câu sai theo môn học">
+                    <option value="ALL">Tất cả môn học</option>
+                </select>
+            </div>
+
+            <button type="button" id="btn-practice-all-wrong" class="btn-practice-all">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                </svg>
+                <span>Luyện tất cả câu sai</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 2. WRONG QUESTIONS GRID CONTAINER -->
+    <div id="wrong-questions-grid" class="wrong-grid" aria-label="Danh sách các câu sai">
+        <!-- Dynamic Cards -->
+    </div>
+
+    <!-- 3. EMPTY STATE CONTAINER -->
+    <div id="wrong-questions-empty" class="wrong-empty-card hidden" aria-label="Trạng thái không có câu sai">
+        <div class="wrong-empty-icon">🎉</div>
+        <h2 class="wrong-empty-title">Tuyệt vời! Bạn chưa có câu nào sai.</h2>
+        <p class="wrong-empty-desc">Hãy tiếp tục luyện tập và duy trì phong độ xuất sắc này nhé!</p>
+        <div class="wrong-empty-action">
+            <button type="button" id="btn-wrong-empty-gohome" class="btn-practice-all" style="background-color: var(--primary);">
+                <span>Luyện đề ngay</span>
+            </button>
+        </div>
+    </div>
+</div>

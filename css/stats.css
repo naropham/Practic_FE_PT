@@ -1,0 +1,256 @@
+/**
+ * APP LUYỆN ĐỀ FE - STATISTICS PAGE STYLES (css/stats.css)
+ * Giao diện Báo cáo Thống Kê Học Tập chuyên nghiệp, biểu đồ Chart.js & Top môn học.
+ */
+
+.stats-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* 1. HEADER HERO BANNER */
+.stats-header-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.stats-header-title h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem 0;
+}
+
+.stats-header-title p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* 2. OVERVIEW METRICS CARDS */
+.stats-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.stats-summary-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stats-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.icon-box-blue   { background-color: #eff6ff; color: var(--primary); }
+.icon-box-green  { background-color: #ecfdf5; color: var(--success); }
+.icon-box-purple { background-color: #f3e8ff; color: #9333ea; }
+.icon-box-amber  { background-color: #fffbeb; color: var(--warning); }
+
+.stats-info-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.stats-info-lbl {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* 3. CHARTS GRID LAYOUT */
+.stats-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .stats-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chart-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chart-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chart-container-box {
+  position: relative;
+  width: 100%;
+  height: 260px;
+}
+
+/* 4. TOP RANKINGS SECTION (Môn mạnh & Môn cần cải thiện) */
+.stats-rankings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.ranking-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ranking-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ranking-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  background-color: var(--background);
+  border: 1px solid var(--border);
+}
+
+.ranking-item-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ranking-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.badge-gold   { background-color: #fef08a; color: #854d0e; }
+.badge-silver { background-color: #e2e8f0; color: #334155; }
+.badge-bronze { background-color: #ffedd5; color: #9a3412; }
+
+.ranking-subject-code {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+}
+
+.ranking-subject-exams {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.ranking-score-value {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.score-high { color: var(--success); }
+.score-low  { color: var(--error); }
+
+/* 5. EMPTY STATE STYLING */
+.stats-empty-card {
+  background-color: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 4rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.stats-empty-icon {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.stats-empty-title {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.stats-empty-desc {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  max-width: 420px;
+  margin: 0;
+}

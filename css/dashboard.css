@@ -1,0 +1,296 @@
+/**
+ * APP LUYỆN ĐỀ FE - DASHBOARD COMPONENT STYLES
+ * Responsive Breakpoints: Mobile <= 767px (1 cột) | Tablet 768px-1023px (2 cột) | Desktop >= 1024px
+ */
+
+.dashboard-container {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  overflow: hidden;
+  padding: 1.5rem;
+}
+
+.dashboard-container > section:not(.study-hero) {
+  position: relative;
+  z-index: 1;
+}
+
+/* 2. STATS CARDS GRID */
+.stats-grid {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem;
+}
+
+.stat-card {
+  background-color: rgb(33 39 69 / 94%);
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 1.1rem;
+  min-height: 84px;
+  padding: 0.75rem 0.9rem;
+  box-shadow: 0 10px 24px rgb(20 38 68 / 24%);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px) rotate(-0.5deg);
+  box-shadow: 0 14px 28px rgb(20 38 68 / 30%);
+  border-color: rgb(255 255 255 / 45%);
+}
+
+.stat-icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 0.8rem;
+  background-color: #dbeafe;
+  color: #4f46e5;
+  flex-shrink: 0;
+}
+
+.stat-card:nth-child(2) .stat-icon-wrapper { background: #d9f99d; color: #4d7c0f; }
+.stat-card:nth-child(3) .stat-icon-wrapper { background: #fbcfe8; color: #be185d; }
+.stat-card:nth-child(4) .stat-icon-wrapper { background: #fde68a; color: #b45309; }
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: #b9c2df;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* 3. SUBJECT CARDS SECTION */
+.section-title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.subject-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.subject-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+  border-color: var(--primary);
+}
+
+.subject-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.subject-code {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.subject-badge {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.subject-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem;
+  background-color: var(--background);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.metric-val {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.metric-lbl {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.btn-practice {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.75rem;
+  background-color: var(--primary);
+  color: #ffffff;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-practice:hover {
+  background-color: var(--primary-hover);
+}
+
+/* 5. RECENT EXAMS SECTION */
+.recent-exams-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.recent-table-wrapper {
+  overflow-x: auto;
+}
+
+.recent-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.recent-table th {
+  padding: 0.875rem 1rem;
+  background-color: var(--background);
+  color: var(--text-secondary);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.recent-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.score-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+}
+
+.score-high { background-color: var(--success-light); color: var(--success-text); }
+.score-mid  { background-color: var(--warning-light); color: var(--warning-text); }
+.score-low  { background-color: var(--error-light); color: var(--error-text); }
+
+/* EMPTY STATE */
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.empty-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  max-width: 400px;
+  margin: 0 0 1.25rem 0;
+}
+
+/* --- TABLET BREAKPOINT (768px - 1023px): Card 2 cột --- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .subjects-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* --- MOBILE BREAKPOINT (<= 767px): Card 1 cột --- */
+@media (max-width: 767px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+  .study-hero {
+    min-height: 230px;
+  }
+  .study-hero-copy {
+    padding-top: 11rem;
+  }
+  .study-tree {
+    font-size: 4rem;
+  }
+  .study-bus {
+    font-size: 2.5rem;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .subjects-grid {
+    grid-template-columns: 1fr;
+  }
+}

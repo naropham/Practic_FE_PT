@@ -1,0 +1,102 @@
+/**
+ * APP LUYỆN ĐỀ FE - HERO BACKGROUND & FLOATING ICONS (css/hero-background.css)
+ * Nền trang chủ hiện đại với hiệu ứng các biểu tượng học tập nổi (Floating Icons).
+ */
+
+/* 1. KHUNG NỀN TỔNG THỂ & TYPOGRAPHY */
+.study-hero {
+  position: absolute;
+  inset: 0;
+  min-height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  z-index: 0;
+  border-radius: var(--radius-lg, 0.75rem);
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .study-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+}
+
+.study-skyline {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Nội dung chữ trên nền */
+.study-hero-copy {
+  position: relative;
+  z-index: 4;
+  width: min(480px, 85%);
+  margin: 0 auto;
+  padding-top: 9.5rem;
+  text-align: center;
+  color: #f8fafc;
+  pointer-events: none;
+}
+
+.study-eyebrow {
+  color: #60a5fa;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.study-hero h1 {
+  margin: 0.5rem 0 0.35rem;
+  font-size: clamp(1.75rem, 4vw, 2.8rem);
+  line-height: 1.1;
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.study-hero p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+/* 2. HIỆU ỨNG ICON NỔI TRÊN BACKGROUND (FLOATING ICONS) */
+.icon-float {
+  position: absolute;
+  bottom: -10%;
+  font-size: 1.8rem;
+  animation: floatUp linear infinite;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 1;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.9;
+  }
+  90% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-420px) rotate(25deg);
+    opacity: 0;
+  }
+}
+
+/* RESPONSIVE DI ĐỘNG */
+@media (max-width: 767px) {
+  .study-hero-copy {
+    padding-top: 12.5rem;
+  }
+  .icon-float {
+    font-size: 1.4rem;
+  }
+}

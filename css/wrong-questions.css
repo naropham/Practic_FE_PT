@@ -1,0 +1,297 @@
+/**
+ * APP LUYỆN ĐỀ FE - WRONG QUESTIONS PAGE STYLES
+ * Giao diện Trang "Câu sai của tôi", bộ lọc môn học, danh sách card câu sai & empty state.
+ */
+
+.wrong-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* 1. TOOLBAR & BANNER */
+.wrong-page-header {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.wrong-header-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.wrong-title-main {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.wrong-title-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.wrong-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.wrong-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wrong-filter-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.wrong-filter-select {
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.wrong-filter-select:focus {
+  border-color: var(--primary);
+}
+
+.btn-practice-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background-color: var(--error);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-practice-all:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* 2. WRONG QUESTIONS GRID / LIST */
+.wrong-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.wrong-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wrong-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+}
+
+.wrong-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wrong-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge-subject {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.badge-exam {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background-color: var(--background);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.wrong-count-tag {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  background-color: #fef2f2;
+  color: var(--error);
+  border: 1px solid #fecaca;
+}
+
+.wrong-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.wrong-question-media {
+  width: 100%;
+  max-height: 140px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  background-color: var(--background);
+  border: 1px solid var(--border);
+}
+
+.wrong-question-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.wrong-meta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.wrong-meta-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wrong-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.btn-card-practice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-card-practice:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-card-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  background-color: var(--surface-hover);
+  color: var(--error);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-card-delete:hover {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+
+/* 3. EMPTY STATE STYLING */
+.wrong-empty-card {
+  background-color: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 4rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.wrong-empty-icon {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.wrong-empty-title {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.wrong-empty-desc {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  max-width: 420px;
+  margin: 0;
+}
+
+.wrong-empty-action {
+  margin-top: 0.5rem;
+}

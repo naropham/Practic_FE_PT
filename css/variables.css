@@ -1,0 +1,123 @@
+/**
+ * APP LUYỆN ĐỀ FE - DESIGN SYSTEM & CSS VARIABLES
+ * Phong cách: Modern, Clean, Professional, Educational.
+ * Màu chủ đạo: Xanh dương. Background: Xám sáng / Xám tối. Card: Trắng / Slate.
+ * Tất cả các thành phần giao diện đều dùng biến CSS, không hard-code màu.
+ */
+
+:root {
+  /* Màu chủ đạo (Primary Blue Palette) */
+  --primary: #2563eb;          /* Xanh dương hoàng gia - Nút bấm chính, điểm nhấn */
+  --primary-hover: #1d4ed8;    /* Xanh dương đậm - Trạng thái Di chuột (Hover) */
+  --primary-light: #eff6ff;    /* Xanh dương nhạt - Thẻ được chọn (Selected/Active) */
+
+  /* Màu nền & Bề mặt (Background & Surfaces) */
+  --background: #f8fafc;       /* Xám xanh nhẹ - Nền toàn trang */
+  --surface: #ffffff;          /* Trắng tinh - Card nội dung, Header, Khung container */
+  --surface-hover: #f1f5f9;    /* Xám nhạt - Trạng thái Di chuột trên item */
+
+  /* Chữ & Văn bản (Typography) */
+  --text-primary: #0f172a;     /* Xanh đen/Xám đậm - Tiêu đề & nội dung chính (High contrast) */
+  --text-secondary: #475569;   /* Xám vừa - Nhãn, phụ đề, nội dung phụ */
+
+  /* Đường viền & Phân cách (Borders) */
+  --border: #e2e8f0;           /* Đường viền xám nhẹ nhàng */
+
+  /* Màu thông báo & Trạng thái (Feedback States) */
+  --success: #10b981;          /* Xanh lá - Đáp án đúng & thông báo thành công */
+  --success-light: #ecfdf5;    /* Nền xanh lá nhạt */
+  --success-text: #047857;     /* Chữ xanh lá đậm tương phản */
+
+  --error: #ef4444;            /* Đỏ - Đáp án sai & cảnh báo lỗi */
+  --error-light: #fef2f2;      /* Nền đỏ nhạt */
+  --error-text: #b91c1c;       /* Chữ đỏ đậm tương phản */
+
+  --warning: #f59e0b;          /* Cam/Hổ phách - Đánh dấu câu hỏi & cảnh báo */
+  --warning-light: #fffbeb;    /* Nền cam nhạt */
+  --warning-text: #b45309;     /* Chữ cam đậm tương phản */
+
+  /* Đổ bóng (Box Shadows) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+
+  /* Bo góc (Border Radii) */
+  --radius-sm: 0.375rem;       /* 6px - Nút nhỏ, Ô input, Badge */
+  --radius-md: 0.5rem;         /* 8px - Card, Nút vừa, Khung chứa */
+  --radius-lg: 0.75rem;        /* 12px - Modal, Khung ứng dụng chính */
+}
+
+/* Hỗ trợ Chế độ Tối (Dark Theme Mode - High Contrast & Eye Care) */
+[data-theme="dark"], html.dark {
+  --primary: #3b82f6;          /* Blue 500 sáng hơn trên nền tối */
+  --primary-hover: #60a5fa;    /* Blue 400 */
+  --primary-light: #1e3a8a;    /* Blue 900 */
+
+  --background: #0f172a;       /* Slate 900 - Nền tối bảo vệ mắt */
+  --surface: #1e293b;          /* Slate 800 - Card nổi bật */
+  --surface-hover: #334155;    /* Slate 700 - Hover mượt */
+
+  --text-primary: #f8fafc;     /* Slate 50 (Tương phản cao 15.8:1) */
+  --text-secondary: #94a3b8;   /* Slate 400 (Tương phản 5.5:1) */
+
+  --border: #334155;           /* Slate 700 */
+
+  --success: #34d399;          /* Emerald 400 */
+  --success-light: #064e3b;    /* Emerald 900 */
+  --success-text: #a7f3d0;
+
+  --error: #f87171;            /* Red 400 */
+  --error-light: #7f1d1d;      /* Red 900 */
+  --error-text: #fecaca;
+
+  --warning: #fbbf24;          /* Amber 400 */
+  --warning-light: #78350f;    /* Amber 900 */
+  --warning-text: #fef3c7;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+}
+
+/* GLOBAL RESPONSIVE SAFETY RULES (Chống vỡ giao diện, cuộn ngang, tràn hình ảnh) */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0;
+}
+
+.app-main {
+  flex: 1;
+  padding: 1.5rem;
+  max-width: 1280px;
+  width: 100%;
+}
+
+.selected-btn { background-color: var(--primary) !important; color: white; }
+.correct { background-color: var(--success) !important; color: white; }
+.wrong { background-color: var(--error) !important; color: white; }
+

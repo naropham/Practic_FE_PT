@@ -3,401 +3,725 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Luyện Đề Tối Giản</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>App Luyện Đề FE-PT</title>
+
+    <!-- Content Security Policy (Progressive Hardening) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; script-src 'self' file: 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: file:; connect-src 'self' blob: file:; font-src 'self' data: file:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';">
+
+    <!-- ANTI-FLASH THEME SCRIPT (Ngăn chớp trắng giao diện trước khi nạp Dark Mode) -->
+    <script src="./js/anti-flash.js"></script>
+
+    <!-- Các thư viện vendor tự host (Offline-First, Secure) -->
+    <script src="./js/vendor/papaparse.min.js"></script>
+    <script src="./js/vendor/xlsx.full.min.js"></script>
+    <script src="./js/vendor/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="./css/tailwind.min.css">
+
+    <!-- Style System & Components CSS -->
+    <link rel="stylesheet" href="./css/variables.css">
+    <link rel="stylesheet" href="./css/header.css">
+    <link rel="stylesheet" href="./css/sidebar.css">
+    <link rel="stylesheet" href="./css/dashboard.css">
+    <link rel="stylesheet" href="./css/hero-background.css">
+    <link rel="stylesheet" href="./css/subjects.css">
+    <link rel="stylesheet" href="./css/exams.css">
+    <link rel="stylesheet" href="./css/quiz.css">
+    <link rel="stylesheet" href="./css/result.css">
+    <link rel="stylesheet" href="./css/wrong-questions.css">
+    <link rel="stylesheet" href="./css/stats.css">
+    <link rel="stylesheet" href="./css/history.css">
+
+    <!-- Data bộ đề -->
     <script src="./data/exams.js"></script>
-    <style>
-        .selected-btn { background-color: #3b82f6 !important; color: white; }
-        .correct { background-color: #10b981 !important; color: white; }
-        .wrong { background-color: #ef4444 !important; color: white; }
-    </style>
 </head>
-<body class="bg-gray-100 p-4 rounded-md">
-    <div class="bg-white p-6 rounded-md">
-        <div class="flex flex-wrap justify-between items-center mb-6 border-b pb-4 gap-4">
-            <h1 class="text-2xl font-bold text-gray-800">Luyện Đề FE</h1>
-            <div class="flex items-center space-x-4">
-                <div class="flex items-center space-x-2">
-                    <label for="time-input" class="text-xs md:text-base text-gray-600 font-medium whitespace-nowrap">Thời gian (phút):</label>
-                    <input type="number" id="time-input" min="1" placeholder="Ko giới hạn" class="p-2 w-28 border rounded-md outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <select id="exam-select" class="p-2 border rounded-md bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">-- Chọn bộ đề --</option>
-                </select>
+<body>
+    <!-- 1. HEADER COMPONENT -->
+    <header class="app-header" aria-label="Thanh điều hướng chính">
+        <div class="header-left">
+            <div class="header-menu-wrap">
+            <button type="button" id="header-logo" class="header-logo" aria-haspopup="true" aria-expanded="false" title="Mở danh sách trang">
+                <span>📝 Luyện Đề FE</span>
+            </button>
+            <nav id="header-page-menu" class="header-page-menu hidden" aria-label="Danh sách trang">
+                <button type="button" data-header-page="home">🏠 <span>Trang chủ</span></button>
+                <button type="button" data-header-page="subjects">📚 <span>Môn học</span></button>
+                <button type="button" data-header-page="history">🕒 <span>Lịch sử làm bài</span></button>
+                <button type="button" data-header-page="stats">📊 <span>Thống kê</span></button>
+            </nav>
             </div>
         </div>
 
-        <div id="quiz-container" class="hidden grid grid-cols-1 md:grid-cols-5 gap-6">
-            <div class="space-y-6">
-                <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-bold text-gray-700">Chọn đáp án (A-F):</h3>
-                        <label class="flex items-center space-x-2 text-yellow-600 font-bold cursor-pointer">
-                            <input type="checkbox" id="flag-checkbox" onchange="toggleFlag()" class="w-5 h-5">
-                            <span>Đánh dấu</span>
-                        </label>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2" id="answer-options">
-                        <button onclick="toggleAnswer('A')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">A</button>
-                        <button onclick="toggleAnswer('B')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">B</button>
-                        <button onclick="toggleAnswer('C')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">C</button>
-                        <button onclick="toggleAnswer('D')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">D</button>
-                        <button onclick="toggleAnswer('E')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">E</button>
-                        <button onclick="toggleAnswer('F')" class="opt-btn border-2 py-2 rounded font-bold hover:border-blue-500">F</button>
-                    </div>
-                    <div id="question-feedback" class="text-center font-bold p-2 rounded hidden mt-3"></div>
-                </div>
+        <div class="header-right">
+            <button type="button" id="lang-toggle-btn" class="icon-btn lang-toggle-btn" aria-label="Chuyển đổi ngôn ngữ Anh / Việt" title="Đổi ngôn ngữ (VI / EN)">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.6 9h16.8M3.6 15h16.8"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.5 3a17 17 0 000 18M12.5 3a17 17 0 010 18"></path>
+                </svg>
+                <span id="lang-toggle-label" class="lang-label">VI</span>
+            </button>
 
-                <div class="space-y-4">
-                    <div id="timer-display" class="hidden text-3xl font-mono font-bold text-red-600 text-center bg-red-50 py-3 rounded border-2 border-red-300"></div>
-                    <button onclick="submitTest()" id="submit-btn" class="w-full py-3 bg-red-600 text-white font-bold rounded shadow-md hover:bg-red-700 uppercase">Nộp bài</button>
-                    <div id="score-board" class="text-center font-bold p-4 rounded hidden shadow mt-4"></div>
-                </div>
+            <button type="button" id="theme-toggle-btn" class="icon-btn theme-toggle-btn" aria-label="Chuyển đổi giao diện Sáng / Tối" title="Đổi giao diện Sáng/Tối">
+                <svg class="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <svg class="moon-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                </svg>
+            </button>
 
-                <div class="border-t pt-4">
-                    <h3 class="font-bold mb-2 text-gray-700 text-sm italic">Danh sách câu hỏi:</h3>
-                    <div id="nav-dots" class="flex flex-wrap gap-2"></div>
-                </div>
-            </div>
-            <div class="md:col-span-4 space-y-4">
-                <div class="bg-gray-200 rounded-lg overflow-hidden border flex justify-center">
-                    <img id="question-image" src="" alt="Câu hỏi" class="max-w-full h-auto object-contain">
-                </div>
-                <div class="flex justify-between">
-                    <button onclick="prevQuestion()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Câu trước</button>
-                    <span id="question-index" class="font-medium text-lg text-gray-700">Câu 1</span>
-                    <button onclick="nextQuestion()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Câu tiếp</button>
+            <button type="button" id="user-avatar-btn" class="user-avatar-btn" aria-label="Tài khoản người dùng" title="Tài khoản">
+                <img src="./assets/images/avatar.jpg" alt="Avatar" class="user-avatar-img">
+            </button>
+        </div>
+    </header>
+
+    <!-- 2. MAIN APP CONTAINER -->
+    <div class="app-container">
+        <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+
+        <div id="quiz-exit-confirm" class="quiz-exit-confirm hidden" role="dialog" aria-modal="true" aria-labelledby="quiz-exit-title">
+            <div class="quiz-exit-confirm-card">
+                <h2 id="quiz-exit-title">Bạn đang làm bài</h2>
+                <p>Rời khỏi bây giờ sẽ kết thúc phiên làm bài hiện tại. Bạn có chắc muốn thoát không?</p>
+                <div class="quiz-exit-confirm-actions">
+                    <button type="button" id="quiz-exit-cancel" class="btn-history-retry">Ở lại bài</button>
+                    <button type="button" id="quiz-exit-accept" class="btn-submit-main">Thoát bài</button>
                 </div>
             </div>
         </div>
-        <p class="text-center text-gray-500 text-sm">Last update: <span id="last-update"></span></p>
+
+        <!-- 2.1 SIDEBAR COMPONENT -->
+        <aside id="app-sidebar" class="app-sidebar" aria-label="Menu điều hướng ứng dụng">
+            <nav class="w-full">
+                <ul class="sidebar-nav" role="menubar">
+                    <li class="nav-item" role="none">
+                        <button type="button" class="nav-link active" data-page="home" role="menuitem" aria-label="Trang chủ" aria-current="page">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 00-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="nav-label">Trang chủ</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <button type="button" class="nav-link" data-page="subjects" role="menuitem" aria-label="Danh sách Môn học">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            <span class="nav-label">Môn học</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <button type="button" class="nav-link" data-page="history" role="menuitem" aria-label="Lịch sử làm bài thi">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="nav-label">Lịch sử làm bài</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <button type="button" class="nav-link" data-page="stats" role="menuitem" aria-label="Thống kê kết quả học tập">
+                            <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <span class="nav-label">Thống kê</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- 2.2 MAIN CONTENT AREA -->
+        <main class="app-main">
+            <!-- 1. DASHBOARD VIEW -->
+            <div id="dashboard-view" class="dashboard-container">
+                <section class="study-hero" aria-label="Không gian học tập">
+                    <div id="study-skyline" class="study-skyline" aria-hidden="true"></div>
+                    <div class="study-hero-copy">
+                        <span class="study-eyebrow">Space to learn in FPT</span>
+                        <h1>What do you want to learn today ?</h1>
+                    </div>
+                </section>
+
+                <section aria-label="Thống kê tổng quan">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span id="stat-total-exams" class="stat-value">0</span>
+                                <span class="stat-label">Tổng số đề đã làm</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span id="stat-total-questions" class="stat-value">0</span>
+                                <span class="stat-label">Tổng số câu đã làm</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span id="stat-avg-score" class="stat-value">0.0</span>
+                                <span class="stat-label">Điểm trung bình</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper">
+                                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+                                </svg>
+                            </div>
+                            <div class="stat-info">
+                                <span id="stat-streak-days" class="stat-value">0 ngày</span>
+                                <span class="stat-label">Streak liên tục</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- 2. SUBJECTS PAGE VIEW (Hidden by default) -->
+            <div id="subjects-page-view" class="subjects-page-container hidden">
+                <div class="subjects-toolbar">
+                    <div class="toolbar-search-box">
+                        <svg class="toolbar-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input type="search" id="subject-search-input" class="toolbar-search-input" placeholder="Tìm theo mã môn hoặc tên môn..." aria-label="Tìm kiếm môn học">
+                    </div>
+
+                    <div class="toolbar-controls">
+                        <div class="control-group">
+                            <label for="subject-filter-select" class="control-label">Lọc:</label>
+                            <select id="subject-filter-select" class="control-select" aria-label="Lọc môn học theo trạng thái">
+                                <option value="all">Tất cả môn học</option>
+                                <option value="practiced">Đã luyện</option>
+                                <option value="unpracticed">Chưa luyện</option>
+                            </select>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="subject-sort-select" class="control-label">Sắp xếp:</label>
+                            <select id="subject-sort-select" class="control-select" aria-label="Sắp xếp danh sách môn học">
+                                <option value="name">Tên môn học (A-Z)</option>
+                                <option value="exams-desc">Số bộ đề (Nhiều nhất)</option>
+                                <option value="score-desc">Điểm trung bình (Cao nhất)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="subjects-page-grid" class="subjects-grid-full" aria-label="Danh sách các môn học">
+                    <!-- Dynamic subject cards -->
+                </div>
+            </div>
+
+            <!-- 3. EXAMS PAGE VIEW (Hidden by default) -->
+            <div id="exams-page-view" class="exams-page-container hidden">
+                <div class="subject-banner">
+                    <div class="subject-banner-title">
+                        <span id="banner-subject-code" class="subject-banner-code">TẤT CẢ</span>
+                        <span id="banner-subject-name" class="subject-banner-name">Tất cả các bộ đề thi</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="banner-subject-select" class="control-label">Đổi môn:</label>
+                        <select id="banner-subject-select" class="control-select" aria-label="Chọn môn học để xem bộ đề">
+                            <option value="ALL">Tất cả môn học</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="exams-toolbar">
+                    <div class="exams-search-box">
+                        <svg class="exams-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input type="search" id="exam-search-input" class="exams-search-input" placeholder="Tìm theo tên bộ đề (FE, RE...)..." aria-label="Tìm kiếm bộ đề">
+                    </div>
+
+                    <div class="exams-controls">
+                        <div class="control-group">
+                            <label for="exam-status-filter" class="control-label">Trạng thái:</label>
+                            <select id="exam-status-filter" class="control-select" aria-label="Lọc bộ đề theo trạng thái">
+                                <option value="all">Tất cả bộ đề</option>
+                                <option value="practiced">Đã làm</option>
+                                <option value="unattempted">Chưa làm</option>
+                            </select>
+                        </div>
+
+                        <div class="control-group">
+                            <label for="exam-sort-select" class="control-label">Sắp xếp:</label>
+                            <select id="exam-sort-select" class="control-select" aria-label="Sắp xếp bộ đề">
+                                <option value="name">Tên bộ đề</option>
+                                <option value="score-desc">Điểm cao nhất</option>
+                                <option value="attempts-desc">Số lần làm (Nhiều nhất)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="exams-page-grid" class="exams-grid" aria-label="Danh sách các bộ đề">
+                    <!-- Dynamic exam cards -->
+                </div>
+            </div>
+
+            <!-- 4. QUIZ SCREEN VIEW (Hidden until exam selected) -->
+            <div id="quiz-screen-view" class="quiz-screen-container hidden">
+                <header class="quiz-header" aria-label="Thông tin bài thi và thời gian">
+                    <div class="quiz-header-info">
+                        <span id="quiz-subject-tag" class="quiz-subject-tag">MÔN HỌC: MAE101</span>
+                        <h1 id="quiz-exam-title" class="quiz-exam-title">Đề Thi FA25 FE</h1>
+                    </div>
+
+                    <div class="quiz-header-actions">
+                        <button type="button" id="quiz-fullscreen-btn" class="icon-btn" aria-label="Bật/Tắt chế độ toàn màn hình" title="Toàn màn hình">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                            </svg>
+                        </button>
+
+                        <div id="quiz-timer-box" class="quiz-timer-box" aria-live="polite">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span id="quiz-timer-display">60:00</span>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="quiz-progress-section" aria-label="Tiến độ làm bài">
+                    <div class="quiz-progress-labels">
+                        <span id="quiz-progress-text">Đã làm: 0 / 50 câu</span>
+                        <span id="quiz-progress-percent">0%</span>
+                    </div>
+                    <div class="quiz-progress-track">
+                        <div id="quiz-progress-fill" class="quiz-progress-fill"></div>
+                    </div>
+                </section>
+
+                <div class="quiz-main-layout">
+                    <aside class="quiz-control-card" aria-label="Bảng điều khiển và chọn đáp án">
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <h2 class="font-bold text-sm" style="color: var(--text-primary);">Chọn đáp án (A - D):</h2>
+                                <label class="flex items-center space-x-2 text-xs font-bold cursor-pointer" style="color: var(--warning);">
+                                    <input type="checkbox" id="quiz-flag-checkbox" class="w-4 h-4">
+                                    <span>Đánh dấu</span>
+                                </label>
+                            </div>
+                            <div id="quiz-answer-options" class="answer-grid">
+                                <button type="button" data-answer="A" class="quiz-opt-btn">A</button>
+                                <button type="button" data-answer="B" class="quiz-opt-btn">B</button>
+                                <button type="button" data-answer="C" class="quiz-opt-btn">C</button>
+                                <button type="button" data-answer="D" class="quiz-opt-btn">D</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button type="button" id="quiz-submit-btn" class="btn-submit-main">Nộp Bài Thi</button>
+                        </div>
+
+                        <div class="border-t pt-3" style="border-color: var(--border);">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="font-bold text-xs italic" style="color: var(--text-secondary);">Danh sách câu hỏi:</h3>
+                            </div>
+                            <div id="quiz-nav-dots" class="quiz-nav-grid" aria-label="Bảng chuyển nhanh câu hỏi">
+                                <!-- Dynamic Nav Dots -->
+                            </div>
+                        </div>
+                    </aside>
+
+                    <main class="quiz-question-card">
+                        <div class="quiz-image-box">
+                            <img id="quiz-question-image" src="" alt="Nội dung câu hỏi" class="quiz-image">
+                        </div>
+
+                        <div class="quiz-bottom-nav">
+                            <button type="button" id="quiz-prev-btn" class="btn-nav">← Câu trước</button>
+                            <span id="quiz-question-index-label" class="font-bold text-base" style="color: var(--text-primary);">Câu 1 / 50</span>
+                            <button type="button" id="quiz-next-btn" class="btn-nav">Câu tiếp →</button>
+                        </div>
+                    </main>
+                </div>
+            </div>
+
+            <!-- 5. TEST RESULT PAGE VIEW (Hidden by default) -->
+            <div id="test-result-page-view" class="result-page-container hidden">
+                <!-- 1. SCORE HERO CARD -->
+                <section class="result-hero-card" aria-label="Kết quả điểm số">
+                    <div class="result-score-circle">
+                        <span id="res-score-value" class="result-score-value">0.00</span>
+                        <span id="res-score-max" class="result-score-max">/ 10 điểm</span>
+                    </div>
+
+                    <div id="res-grade-badge" class="result-grade-badge grade-excellent">
+                        <span>Rất tốt 👏</span>
+                    </div>
+
+                    <p id="res-feedback-msg" class="result-feedback-msg">Bạn đã hoàn thành bài thi với kết quả tuyệt vời!</p>
+                </section>
+
+                <!-- 2. VISUAL BREAKDOWN BAR CHART -->
+                <section class="result-chart-card" aria-label="Biểu đồ phân tích câu hỏi">
+                    <h2 class="chart-title">Phân Tích Tỷ Lệ Đòn Bẩy Câu Hỏi</h2>
+                    <div class="breakdown-bar-track">
+                        <div id="res-seg-correct" class="segment-correct" style="width: 0%;" title="Số câu đúng"></div>
+                        <div id="res-seg-wrong" class="segment-wrong" style="width: 0%;" title="Số câu sai"></div>
+                        <div id="res-seg-skipped" class="segment-skipped" style="width: 0%;" title="Số câu bỏ trống"></div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <span class="legend-dot dot-correct"></span>
+                            <span id="legend-correct-text">Đúng: 0</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot dot-wrong"></span>
+                            <span id="legend-wrong-text">Sai: 0</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot dot-skipped"></span>
+                            <span id="legend-skipped-text">Bỏ trống: 0</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. ACTIONS BAR -->
+                <section aria-label="Thao tác kết quả">
+                    <div class="result-actions-grid">
+                        <button type="button" id="btn-res-review" class="btn-result-action btn-action-secondary">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            <span>Xem lại bài</span>
+                        </button>
+                        <button type="button" id="btn-res-retry" class="btn-result-action btn-action-primary">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            <span>Làm lại</span>
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 6. WRONG QUESTIONS PAGE VIEW (Hidden by default) -->
+            <div id="wrong-questions-page-view" class="wrong-page-container hidden">
+                <!-- 1. TOOLBAR & HEADER -->
+                <header class="wrong-page-header" aria-label="Thanh công cụ trang câu sai">
+                    <div class="wrong-header-title">
+                        <h1 class="wrong-title-main">
+                            <svg width="28" height="28" fill="none" stroke="var(--error)" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Câu Sai Của Tôi</span>
+                        </h1>
+                        <p class="wrong-title-desc">Danh sách toàn bộ các câu hỏi bạn từng trả lời sai trong lịch sử làm bài thi.</p>
+                    </div>
+
+                    <div class="wrong-header-actions">
+                        <div class="wrong-filter-group">
+                            <label for="wrong-subject-filter" class="wrong-filter-label">Môn học:</label>
+                            <select id="wrong-subject-filter" class="wrong-filter-select" aria-label="Lọc câu sai theo môn học">
+                                <option value="ALL">Tất cả môn học</option>
+                            </select>
+                        </div>
+
+                        <button type="button" id="btn-practice-all-wrong" class="btn-practice-all">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                            </svg>
+                            <span>Luyện tất cả câu sai</span>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- 2. WRONG QUESTIONS GRID CONTAINER -->
+                <div id="wrong-questions-grid" class="wrong-grid" aria-label="Danh sách các câu sai">
+                    <!-- Dynamic Cards -->
+                </div>
+
+                <!-- 3. EMPTY STATE CONTAINER -->
+                <div id="wrong-questions-empty" class="wrong-empty-card hidden" aria-label="Trạng thái không có câu sai">
+                    <div class="wrong-empty-icon">🎉</div>
+                    <h2 class="wrong-empty-title">Tuyệt vời! Bạn chưa có câu nào sai.</h2>
+                    <p class="wrong-empty-desc">Hãy tiếp tục luyện tập và duy trì phong độ xuất sắc này nhé!</p>
+                    <div class="wrong-empty-action">
+                        <button type="button" id="btn-wrong-empty-gohome" class="btn-practice-all" style="background-color: var(--primary);">
+                            <span>Luyện đề ngay</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. STATISTICS PAGE VIEW (Hidden by default) -->
+            <div id="stats-page-view" class="stats-page-container hidden">
+                <!-- 1. HEADER CARD -->
+                <header class="stats-header-card" aria-label="Thanh công cụ trang thống kê">
+                    <div class="stats-header-title">
+                        <h1>
+                            <svg width="28" height="28" fill="none" stroke="var(--primary)" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <span>Báo Cáo Thống Kê Học Tập</span>
+                        </h1>
+                    </div>
+                </header>
+
+                <!-- 2. SUMMARY METRICS CARDS -->
+                <section aria-label="Thống kê tổng quan">
+                    <div class="stats-summary-grid">
+                        <div class="stats-summary-card">
+                            <div class="stats-icon-box icon-box-blue">📈</div>
+                            <div>
+                                <div id="st-avg-score" class="stats-info-val">0.0</div>
+                                <div class="stats-info-lbl">Điểm trung bình</div>
+                            </div>
+                        </div>
+                        <div class="stats-summary-card">
+                            <div class="stats-icon-box icon-box-green">🎯</div>
+                            <div>
+                                <div id="st-accuracy-rate" class="stats-info-val">0%</div>
+                                <div class="stats-info-lbl">Tỷ lệ chính xác</div>
+                            </div>
+                        </div>
+                        <div class="stats-summary-card">
+                            <div class="stats-icon-box icon-box-purple">📝</div>
+                            <div>
+                                <div id="st-total-exams" class="stats-info-val">0</div>
+                                <div class="stats-info-lbl">Tổng số đề đã làm</div>
+                            </div>
+                        </div>
+                        <div class="stats-summary-card">
+                            <div class="stats-icon-box icon-box-amber">❓</div>
+                            <div>
+                                <div id="st-total-questions" class="stats-info-val">0</div>
+                                <div class="stats-info-lbl">Tổng số câu đã làm</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. CHARTS GRID (Visible when history exists) -->
+                <div id="stats-charts-section" class="stats-charts-grid">
+                    <!-- 1. Line chart: Điểm trung bình theo thời gian -->
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h2 class="chart-card-title">📈 Điểm Số Theo Thời Gian</h2>
+                        </div>
+                        <div class="chart-container-box">
+                            <canvas id="chart-score-over-time"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 2. Doughnut chart: Tỷ lệ đúng/sai -->
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h2 class="chart-card-title">🍩 Tỷ Lệ Đúng / Sai</h2>
+                        </div>
+                        <div class="chart-container-box">
+                            <canvas id="chart-right-wrong-ratio"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 3. Bar chart: Số câu đã làm mỗi ngày -->
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h2 class="chart-card-title">📅 Số Câu Đã Làm Mỗi Ngày</h2>
+                        </div>
+                        <div class="chart-container-box">
+                            <canvas id="chart-daily-questions"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 4. Bar chart: Điểm trung bình theo môn -->
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h2 class="chart-card-title">📚 Điểm Trung Bình Theo Môn</h2>
+                        </div>
+                        <div class="chart-container-box">
+                            <canvas id="chart-score-by-subject"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. TOP RANKINGS (Môn mạnh nhất & Môn cần cải thiện) -->
+                <div id="stats-rankings-section" class="stats-rankings-grid">
+                    <!-- Top môn mạnh nhất -->
+                    <div class="ranking-card">
+                        <div class="ranking-header">
+                            <span class="text-2xl">🏆</span>
+                            <h2 class="ranking-title">Top Môn Mạnh Nhất</h2>
+                        </div>
+                        <div id="top-strong-subjects-list" class="ranking-list">
+                            <!-- Dynamic ranking items -->
+                        </div>
+                    </div>
+
+                    <!-- Top môn cần cải thiện -->
+                    <div class="ranking-card">
+                        <div class="ranking-header">
+                            <span class="text-2xl">⚡</span>
+                            <h2 class="ranking-title">Top Môn Cần Cải Thiện</h2>
+                        </div>
+                        <div id="top-weak-subjects-list" class="ranking-list">
+                            <!-- Dynamic ranking items -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. EMPTY STATE (Visible when no history exists) -->
+                <div id="stats-empty-view" class="stats-empty-card hidden" aria-label="Trạng thái chưa có dữ liệu thi">
+                    <div class="stats-empty-icon">📊</div>
+                    <h2 class="stats-empty-title">Chưa có dữ liệu thống kê</h2>
+                    <p class="stats-empty-desc">Bạn chưa hoàn thành bài thi nào. Hãy luyện tập ít nhất 1 bộ đề để hệ thống tổng hợp báo cáo chi tiết nhé!</p>
+                    <div class="mt-3">
+                        <button type="button" id="btn-stats-start-exam" class="btn-practice-all" style="background-color: var(--primary);">
+                            <span>Bắt đầu luyện đề ngay</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. EXAM HISTORY PAGE VIEW (Hidden by default) -->
+            <div id="history-page-view" class="history-page-container hidden">
+                <!-- 1. TOOLBAR & HEADER -->
+                <header class="history-header-card" aria-label="Thanh công cụ trang lịch sử">
+                    <div class="history-title-row">
+                        <div>
+                            <h1 class="history-title-main">
+                                <svg width="28" height="28" fill="none" stroke="var(--primary)" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Lịch Sử Làm Bài Thi</span>
+                            </h1>
+                        </div>
+
+                        <div class="history-toolbar-controls">
+                            <div class="history-search-box">
+                                <svg class="history-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <input type="search" id="history-search-input" class="history-search-input" placeholder="Tìm bộ đề hoặc tên môn..." aria-label="Tìm kiếm lịch sử bài thi">
+                            </div>
+
+                            <select id="history-subject-filter" class="history-filter-select" aria-label="Lọc theo môn học">
+                                <option value="ALL">Tất cả môn học</option>
+                            </select>
+
+                            <select id="history-sort-select" class="history-filter-select" aria-label="Sắp xếp thời gian">
+                                <option value="date-desc">Thời gian (Mới nhất)</option>
+                                <option value="date-asc">Thời gian (Cũ nhất)</option>
+                                <option value="score-desc">Điểm (Cao nhất)</option>
+                            </select>
+
+                            <button type="button" id="btn-history-clear-all" class="btn-history-clear-all">
+                                Xóa tất cả lịch sử
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- 2. DESKTOP TABLE VIEW -->
+                <div id="history-table-section" class="history-table-wrapper">
+                    <table class="history-table" aria-label="Bảng lịch sử làm bài thi">
+                        <thead>
+                            <tr>
+                                <th>Ngày làm bài</th>
+                                <th>Môn</th>
+                                <th>Bộ đề</th>
+                                <th>Điểm</th>
+                                <th>Đúng</th>
+                                <th>Sai</th>
+                                <th>Thời gian</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <!-- Dynamic rows -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 3. MOBILE CARDS VIEW -->
+                <div id="history-cards-section" class="history-cards-wrapper" aria-label="Danh sách lịch sử thi trên di động">
+                    <!-- Dynamic mobile cards -->
+                </div>
+
+                <!-- 4. QUESTION DETAILS -->
+                <section id="history-detail-panel" class="history-detail-panel hidden" aria-label="Chi tiết đáp án bài thi">
+                    <div class="history-detail-header">
+                        <div>
+                            <h2 id="history-detail-title" class="history-detail-title">Chi tiết bài thi</h2>
+                            <p id="history-detail-summary" class="history-detail-summary"></p>
+                        </div>
+                        <button type="button" id="history-detail-close" class="history-detail-close" aria-label="Đóng chi tiết">Đóng</button>
+                    </div>
+                    <div id="history-detail-list" class="history-detail-list"></div>
+                </section>
+
+                <!-- 5. PAGINATION CONTROLS -->
+                <div id="history-pagination-section" class="history-pagination">
+
+                    <div id="history-pagination-buttons" class="pagination-buttons">
+                        <!-- Dynamic page buttons -->
+                    </div>
+                </div>
+
+                <!-- 5. EMPTY STATE -->
+                <div id="history-empty-view" class="history-empty-card hidden" aria-label="Trạng thái chưa có lịch sử thi">
+                    <div class="history-empty-icon">📝</div>
+                    <h2 class="history-empty-title">Chưa có lịch sử làm bài</h2>
+                    <p class="history-empty-desc">Bạn chưa hoàn thành bài thi nào hoặc không tìm thấy kết quả phù hợp với bộ lọc.</p>
+                    <div class="mt-2">
+                        <button type="button" id="btn-history-start-exam" class="btn-practice-all" style="background-color: var(--primary);">
+                            <span>Luyện đề ngay</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legacy Quiz selector wrapper for compatibility -->
+            <div id="quiz-card-wrapper" class="hidden">
+                <select id="exam-select" class="hidden"><option value=""></option></select>
+                <input type="number" id="time-input" class="hidden" value="60">
+            </div>
+
+        </main>
     </div>
 
-    <script>
-        document.getElementById('last-update').innerText = new Date(document.lastModified).toLocaleString('vi-VN');
-        let currentExam = "";
-        let currentSubject = "";
-        let questions = [];
-        let currentIndex = 0;
-        let userAnswers = []; // Save answers per question
-        let flaggedQuestions = new Set();
-        let isSubmitted = false;
-        let timerInterval = null;
-        let timeRemaining = 0;
-
-        const examSelect = document.getElementById('exam-select');
-        const quizContainer = document.getElementById('quiz-container');
-        const qImage = document.getElementById('question-image');
-        const qIndexLabel = document.getElementById('question-index');
-        const questionFeedback = document.getElementById('question-feedback');
-        const scoreBoard = document.getElementById('score-board');
-        const navDots = document.getElementById('nav-dots');
-        const submitBtn = document.getElementById('submit-btn');
-        const flagCheckbox = document.getElementById('flag-checkbox');
-
-        // 0. Khởi tạo danh sách bộ đề từ biến EXAM_LIST trong file data/exams.js
-        if (typeof EXAM_LIST !== 'undefined') {
-            const subjects = [...new Set(EXAM_LIST.map(e => e.subject || "Khác"))];
-            subjects.forEach(subject => {
-                const optGroup = document.createElement('optgroup');
-                optGroup.label = subject;
-                const examsInSubject = EXAM_LIST.filter(e => (e.subject || "Khác") === subject);
-                examsInSubject.forEach(exam => {
-                    const opt = document.createElement('option');
-                    opt.value = exam.id;
-                    opt.innerText = exam.name;
-                    optGroup.appendChild(opt);
-                });
-                examSelect.appendChild(optGroup);
-            });
-        }
-
-        // 1. Lắng nghe sự kiện chọn bộ đề
-        examSelect.addEventListener('change', (e) => {
-            const selectedId = e.target.value;
-            if (selectedId) {
-                const examInfo = EXAM_LIST.find(x => x.id === selectedId);
-                currentExam = examInfo.id;
-                currentSubject = examInfo.subject || "Khác";
-                loadExam();
-            } else {
-                quizContainer.classList.add('hidden');
-            }
-        });
-
-        // 2. Hàm tải dữ liệu từ CSV/Excel
-        function loadExam() {
-            const xlsxUrl = `./data/data/${currentSubject}/${currentExam}.xlsx`;
-            const csvUrl = `./data/data/${currentSubject}/${currentExam}.csv`;
-
-            // Thử nạp dữ liệu từ file Excel (.xlsx) trước
-            fetch(xlsxUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error("XLSX not found");
-                    return response.arrayBuffer();
-                })
-                .then(buffer => {
-                    const data = new Uint8Array(buffer);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const firstSheet = workbook.SheetNames[0];
-                    const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet], {defval: ""});
-                    processExamData(jsonData);
-                })
-                .catch(() => {
-                    // Nếu lỗi (không tồn tại file excell), fallback sang nạp file CSV
-                    Papa.parse(csvUrl, {
-                        download: true,
-                        header: true,
-                        skipEmptyLines: true,
-                        complete: function(results) {
-                            processExamData(results.data);
-                        },
-                        error: function(err) {
-                            console.error("Error loading CSV:", err);
-                            alert("Không thể tải file dữ liệu cho bộ đề này (cần file .xlsx hoặc .csv).");
-                        }
-                    });
-                });
-        }
-
-        function processExamData(data) {
-            // Thêm fallback q['question_id.webp'], q['link_media'] hoặc q.question do sự khác biệt giữa các format
-            questions = data.filter(q => q.question_id || q['question_id.webp'] || q['link_media'] || q.question); 
-            currentIndex = 0;
-            userAnswers = questions.map(() => new Set());
-            flaggedQuestions.clear();
-            isSubmitted = false;
-            submitBtn.classList.remove('hidden');
-            scoreBoard.classList.add('hidden');
-            flagCheckbox.disabled = false;
-            quizContainer.classList.remove('hidden');
-            
-            startTimer();
-            renderQuestion();
-            renderNavDots();
-        }
-
-        // 3. Hiển thị câu hỏi hiện tại
-        function renderQuestion() {
-            const q = questions[currentIndex];
-            
-            // Xử lý nạp ảnh từ URL trực tiếp hoặc từ folder local
-            if (q['link_media']) {
-                qImage.src = q['link_media'];
-            } else if (q.question && String(q.question).startsWith('http')) {
-                let imgUrl = String(q.question).trim();
-                qImage.src = imgUrl;
-            } else {
-                const qIdRaw = q.question_id || q['question_id.webp'] || `Q${currentIndex+1}`;
-                const qId = String(qIdRaw).replace('.webp', '');
-                qImage.src = `./data/images/${currentSubject}/${currentExam}/${qId}.webp`;
-            }
-            
-            qIndexLabel.innerText = `Câu ${currentIndex + 1} / ${questions.length}`;
-            
-            flagCheckbox.checked = flaggedQuestions.has(currentIndex);
-            resetUI();
-            
-            const answers = userAnswers[currentIndex];
-            document.querySelectorAll('.opt-btn').forEach(btn => {
-                if (answers.has(btn.innerText)) btn.classList.add('selected-btn');
-                btn.disabled = isSubmitted;
-            });
-            flagCheckbox.disabled = isSubmitted;
-
-            if (isSubmitted) {
-                showFeedbackForCurrentQuestion();
-            }
-
-            // Update dots to show current selection
-            questions.forEach((_, i) => updateNavDot(i));
-        }
-
-        function resetUI() {
-            questionFeedback.classList.add('hidden');
-            document.querySelectorAll('.opt-btn').forEach(btn => {
-                btn.className = 'opt-btn border-2 py-2 rounded font-bold hover:border-blue-500';
-            });
-        }
-
-        function toggleFlag() {
-            if (isSubmitted) return;
-            if (flaggedQuestions.has(currentIndex)) {
-                flaggedQuestions.delete(currentIndex);
-            } else {
-                flaggedQuestions.add(currentIndex);
-            }
-            updateNavDot(currentIndex);
-        }
-
-        // 4. Logic chọn đáp án (Multi-choice)
-        function toggleAnswer(char) {
-            if (isSubmitted) return;
-            const answers = userAnswers[currentIndex];
-            if (answers.has(char)) {
-                answers.delete(char);
-                event.target.classList.remove('selected-btn');
-            } else {
-                answers.add(char);
-                event.target.classList.add('selected-btn');
-            }
-            updateNavDot(currentIndex);
-        }
-
-        function startTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            const timeInput = document.getElementById('time-input');
-            const timerDisplay = document.getElementById('timer-display');
-            
-            if (timeInput.value && !isNaN(timeInput.value) && parseInt(timeInput.value) > 0) {
-                timeRemaining = parseInt(timeInput.value) * 60;
-                timerDisplay.classList.remove('hidden');
-                updateTimerDisplay();
-                
-                timerInterval = setInterval(() => {
-                    if (isSubmitted) {
-                        clearInterval(timerInterval);
-                        return;
-                    }
-                    timeRemaining--;
-                    updateTimerDisplay();
-                    if (timeRemaining <= 0) {
-                        clearInterval(timerInterval);
-                        alert("Hết thời gian! Hệ thống sẽ tự động nộp bài.");
-                        submitTest(true);
-                    }
-                }, 1000);
-            } else {
-                timerDisplay.classList.add('hidden');
-            }
-        }
-
-        function updateTimerDisplay() {
-            const timerDisplay = document.getElementById('timer-display');
-            const m = Math.floor(timeRemaining / 60);
-            const s = timeRemaining % 60;
-            timerDisplay.innerText = `⏳ ${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-            
-            if (timeRemaining <= 60) {
-                timerDisplay.classList.add('animate-pulse');
-            } else {
-                timerDisplay.classList.remove('animate-pulse');
-            }
-        }
-
-        // 5. Nộp bài
-        function submitTest(autoSubmit = false) {
-            if (isSubmitted) return;
-            if (autoSubmit !== true && !confirm("Bạn có chắc chắn muốn nộp bài?")) return;
-            
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                document.getElementById('timer-display').classList.remove('animate-pulse');
-            }
-            isSubmitted = true;
-            submitBtn.classList.add('hidden');
-            flagCheckbox.disabled = true;
-
-            let correctCount = 0;
-            questions.forEach((q, i) => {
-                const correctAns = q.correct_answer || q['correct_answer'] || q['correct_answer'] || q.answer || "";
-                const correctStr = String(correctAns).toUpperCase().split('').sort().join('');
-                const userStr = Array.from(userAnswers[i]).sort().join('');
-                if (userStr === correctStr && correctStr !== "") {
-                    correctCount++;
-                }
-            });
-
-            const score = ((correctCount / questions.length) * 10).toFixed(2);
-            scoreBoard.innerHTML = `ĐIỂM SỐ: <span class="text-3xl text-red-600 block my-2">${score}</span><span class="text-gray-600 text-sm">(${correctCount} / ${questions.length} câu đúng)</span>`;
-            scoreBoard.className = "text-center font-bold p-4 rounded bg-white border-2 border-red-500 mt-4 block shadow-lg bg-green-50";
-            
-            renderQuestion();
-        }
-
-        function showFeedbackForCurrentQuestion() {
-            const q = questions[currentIndex];
-            const correctAns = q.correct_answer || q['correct_answer'] || q['correct_answer'] || q.answer || "";
-            const correctStr = String(correctAns).toUpperCase().split('').sort().join('');
-            const userStr = Array.from(userAnswers[currentIndex]).sort().join('');
-            questionFeedback.classList.remove('hidden');
-            
-            if (userStr === correctStr) {
-                questionFeedback.innerText = "CHÍNH XÁC! 🎉";
-                questionFeedback.className = "text-center font-bold p-2 rounded bg-green-100 text-green-700 mt-3 block";
-            } else {
-                questionFeedback.innerText = `SAI RỒI! Đáp án đúng là: ${correctStr}`;
-                questionFeedback.className = "text-center font-bold p-2 rounded bg-red-100 text-red-700 mt-3 block";
-            }
-        }
-
-        // Điều hướng
-        function nextQuestion() {
-            if (currentIndex < questions.length - 1) {
-                currentIndex++;
-                renderQuestion();
-            }
-        }
-
-        function prevQuestion() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                renderQuestion();
-            }
-        }
-
-        function jumpTo(index) {
-            currentIndex = index;
-            renderQuestion();
-        }
-
-        function updateNavDot(index) {
-            const dot = navDots.children[index];
-            if (!dot) return;
-            
-            // Default styling
-            let classes = "w-8 h-8 text-xs font-bold border rounded flex items-center justify-center ";
-
-            if (isSubmitted) {
-                const q = questions[index];
-                const correctAns = q.correct_answer || q['correct_answer'] || q['correct_answer'] || q.answer || "";
-                const correctStr = String(correctAns).toUpperCase().split('').sort().join('');
-                const userStr = Array.from(userAnswers[index]).sort().join('');
-                if (userStr === correctStr && correctStr !== "") {
-                    classes += "bg-green-500 text-white border-green-600 ";
-                } else {
-                    classes += "bg-red-500 text-white border-red-600 ";
-                }
-            } else {
-                // Not submitted states
-                if (flaggedQuestions.has(index)) {
-                    classes += "bg-yellow-400 text-white border-yellow-500 ";
-                } else if (userAnswers[index].size > 0) {
-                    classes += "bg-blue-500 text-white border-blue-600 ";
-                } else {
-                    classes += "bg-white text-gray-700 hover:bg-gray-200 border-gray-300 ";
-                }
-            }
-
-            if (index === currentIndex) {
-                classes += "ring-4 ring-offset-2 ring-blue-500 ";
-            }
-
-            dot.className = classes;
-        }
-
-        function renderNavDots() {
-            navDots.innerHTML = "";
-            questions.forEach((_, i) => {
-                const btn = document.createElement('button');
-                btn.innerText = i + 1;
-                btn.onclick = () => jumpTo(i);
-                navDots.appendChild(btn);
-            });
-            questions.forEach((_, i) => updateNavDot(i));
-        }
-    </script>
+    <!-- Logic Modules -->
+    <script src="./js/theme.js"></script>
+    <script src="./js/header.js"></script>
+    <script src="./js/sidebar.js"></script>
+    <script src="./js/dashboard.js"></script>
+    <script src="./js/subjects.js"></script>
+    <script src="./js/exams.js"></script>
+    <script src="./js/timer.js"></script>
+    <script src="./js/storage.js"></script>
+    <script src="./js/quiz-engine.js"></script>
+    <script src="./js/result.js"></script>
+    <script src="./js/wrong-questions.js"></script>
+    <script src="./js/stats.js"></script>
+    <script src="./js/history.js"></script>
+    <script src="./app.js" defer></script>
 </body>
 </html>

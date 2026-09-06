@@ -1,0 +1,552 @@
+/**
+ * APP LUYỆN ĐỀ FE - EXAM HISTORY PAGE STYLES (css/history.css)
+ * Giao diện Bảng Lịch Sử Làm Bài: Responsive Table trên Desktop, Card trên Mobile,
+ * Tìm kiếm, Bộ lọc môn, Sắp xếp ngày & Phân trang (Pagination).
+ */
+
+.history-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* 1. TOOLBAR & HEADER CARD */
+.history-header-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.history-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.history-title-main {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.history-title-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0.25rem 0 0 0;
+}
+
+.history-toolbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.history-search-box {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+}
+
+.history-search-icon {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.history-search-input {
+  width: 100%;
+  padding: 0.5rem 0.875rem 0.5rem 2.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.history-search-input:focus {
+  border-color: var(--primary);
+}
+
+.history-filter-select {
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.btn-history-clear-all {
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--error);
+  background-color: transparent;
+  color: var(--error);
+  font-size: 0.875rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  white-space: nowrap;
+}
+
+.btn-history-clear-all:hover {
+  background-color: #fef2f2;
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+/* 2. DESKTOP TABLE VIEW */
+.history-table-wrapper {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.history-table th {
+  background-color: var(--background);
+  color: var(--text-secondary);
+  font-weight: 700;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.history-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.history-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.history-table tbody tr:hover {
+  background-color: var(--surface-hover);
+}
+
+.history-score-badge {
+  font-weight: 800;
+  font-size: 0.9375rem;
+  color: var(--primary);
+}
+
+.history-action-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-history-view {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-history-view:hover {
+  background-color: #dbeafe;
+}
+
+.btn-history-retry {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-history-retry:hover {
+  background-color: var(--border);
+}
+
+.btn-history-delete {
+  padding: 0.375rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background-color: #fef2f2;
+  color: var(--error);
+  border: 1px solid #fecaca;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-history-delete:hover {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+/* 3. MOBILE CARDS VIEW (Ẩn mặc định trên Desktop, hiển thị trên Mobile) */
+.history-cards-wrapper {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.history-mobile-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.history-mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.history-mobile-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.history-mobile-date {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.history-mobile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  padding: 0.75rem;
+  background-color: var(--background);
+  border-radius: var(--radius-md);
+}
+
+.history-detail-panel {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem;
+  scroll-margin-top: 1rem;
+}
+
+.history-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.history-detail-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.history-detail-summary {
+  margin: 0.35rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.history-detail-close {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-hover);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.45rem 0.75rem;
+}
+
+.history-detail-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.history-detail-item {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--text-secondary);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+}
+
+.history-detail-item.is-correct {
+  border-left-color: #16a34a;
+}
+
+.history-detail-item.is-wrong {
+  border-left-color: #dc2626;
+}
+
+.history-detail-item-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  color: var(--text-primary);
+}
+
+.history-detail-status,
+.history-detail-marked {
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+}
+
+.status-correct {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-wrong {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-blank {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.history-detail-marked {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.history-detail-question {
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 0.7rem 0;
+  white-space: pre-wrap;
+}
+
+.history-detail-image {
+  display: block;
+  max-height: 220px;
+  max-width: 100%;
+  object-fit: contain;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.history-detail-image-zoomable {
+  cursor: zoom-in;
+}
+
+.history-detail-image-missing {
+  min-height: 2rem;
+  opacity: 0.55;
+}
+
+.history-image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgb(0 0 0 / 80%);
+}
+
+.history-image-lightbox-content {
+  max-width: min(95vw, 1400px);
+  max-height: 90vh;
+  object-fit: contain;
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 45%);
+}
+
+.history-image-lightbox-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0.5rem 0.8rem;
+}
+
+.history-detail-answers {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.history-detail-answer-label {
+  color: var(--text-secondary);
+  display: inline-block;
+  min-width: 6.5rem;
+}
+
+.history-detail-empty {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .history-table-wrapper {
+    display: none;
+  }
+  .history-cards-wrapper {
+    display: flex;
+  }
+}
+
+/* 4. PAGINATION STYLING */
+.history-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.pagination-info {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.btn-page-step {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-page-step:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-page-num {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.btn-page-num.active {
+  background-color: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+}
+
+/* 5. EMPTY STATE */
+.history-empty-card {
+  background-color: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 4rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.history-empty-icon {
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+.history-empty-title {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.history-empty-desc {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.hidden {
+  display: none !important;
+}
